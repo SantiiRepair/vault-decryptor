@@ -4,16 +4,21 @@
 
   // These tasks can be run from CodeSandbox. Running one will open a log in the app.
   "tasks": {
+    "format": {
+      "name": "format",
+      "command": "black . --line-length 79"
+    },
+    "lint": {
+      "name": "lint",
+      "command": "pylint --recursive yes --jobs=4 ."
+    },
     "start": {
       "name": "start",
-      "command": "python main.py",
-      "runAtStart": true,
-      "restartOn": {
-        "files": ["main.py"]
-      }
+      "command": "python -m decryptor",
+      "runAtStart": true
     },
-    "install-dependencies": {
-      "name": "Installing Dependencies",
+    "install": {
+      "name": "install",
       "command": "pip install -r requirements.txt",
       "restartOn": {
         "files": ["requirements.txt"]
