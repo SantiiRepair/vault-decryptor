@@ -14,7 +14,7 @@
     },
     "start": {
       "name": "start",
-      "command": "python -m decryptor",
+      "command": "python -m vault_decryptor",
       "runAtStart": true
     },
     "install": {
