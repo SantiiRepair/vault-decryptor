@@ -23,6 +23,7 @@ setup(
     author="Santiago Ramirez",
     license="MIT",
     packages=setuptools.find_packages(),
+    script=["./scripts/vault-decryptor"],
     entry_points={
         "console_scripts": [
             "vault_decryptor = vault_decryptor.__main__:main",
