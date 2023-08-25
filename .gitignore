@@ -1,2 +1,5 @@
 __pycache__
+.venv
+dist
 setup-codesandbox.sh
+vault_decryptor.egg-info
