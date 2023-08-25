@@ -2,17 +2,36 @@ import os
 import shutup
 import asyncio
 import argparse
-from vault_decryptor.helpers.bash import bash
+from pathlib import Path
 
 # used to hide asyncio annoying warning
 shutup.please()
 c = os.path.dirname(os.path.abspath(__file__))
 
 
-async def _main():
-    nu_packages = ["@metamask/browser-passworder"]
-    for package in nu_packages:
-        await bash(f"npm i -g {package}")
+async def _main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-ptl",
+        "--path-to-logs",
+        "--path_to_logs",
+        type=str,
+        required=True,
+        help="Path to metamask log files",
+    )
+    parser.add_argument(
+        "-r",
+        "--recursive",
+        type=bool,
+        default=False,
+        help="Iterate over all files in the specified path",
+    )
+
+    args = parser.parse_args()
+    if args.recursive():
+        ptl = Path(args.path_to_logs)
+        for logs in ptl.glob("*.log"):
+            print(logs)
 
 
 if __name__ == "__main__":
