@@ -1,4 +1,3 @@
-import os
 import shutup
 import asyncio
 import argparse
@@ -6,7 +5,6 @@ from pathlib import Path
 
 # used to hide asyncio annoying warning
 shutup.please()
-c = os.path.dirname(os.path.abspath(__file__))
 
 
 async def _main() -> None:
