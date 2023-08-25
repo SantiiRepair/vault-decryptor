@@ -24,7 +24,7 @@ setup(
     author_email="None",
     license="MIT",
     packages=setuptools.find_packages(),
-    scripts=["./scripts/vault-decryptor"],
+    scripts=["./scripts/vault-decryptor", "./scripts/vault-decryptor.ps1"],
     install_requires=requirements,
     classifiers=[
         "Development Status :: 3 - Alpha",

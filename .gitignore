@@ -5,3 +5,4 @@ setup-codesandbox.sh
 vault_decryptor.egg-info
 
 .venv
+.gitpod.yml
