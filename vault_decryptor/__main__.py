@@ -2,13 +2,16 @@ import shutup
 import asyncio
 import argparse
 from pathlib import Path
+from termcolor import colored
 
 # used to hide asyncio annoying warning
 shutup.please()
 
 
 async def _main() -> None:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description=f"{colored('A fast, local Metamask Vault Decryptor in the command line', 'green')}"
+    )
     parser.add_argument(
         "-ptl",
         "--path-to-logs",
