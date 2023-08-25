@@ -19,7 +19,7 @@ setup(
     name="vault-decryptor",
     version="1.0.0",
     description="A fast, local Metamask Vault Decryptor in the command line.",
-    url="http://github.com/SantiiRepair/vault-decryptor",
+    url="https://github.com/SantiiRepair/vault-decryptor",
     author="Santiago Ramirez",
     author_email="None",
     license="MIT",
