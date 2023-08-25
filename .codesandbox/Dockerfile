@@ -1,10 +1,10 @@
 FROM python:3.11.1
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install curl git python3 python3-pip tree -y
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+RUN chmod +x ./dotnet-install.sh
+RUN ./dotnet-install.sh --version latest
+RUN apt-get install curl git mono-complete nuget python3 python3-pip tree -y
 RUN pip3 install -U pip
 RUN pip3 install --upgrade pip
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
-RUN apt-get install -y nodejs
-RUN npm i -g npm
+RUN export DOTNET_ROOT=$HOME/.dotnet
+RUN export PATH=$PATH:$HOME/.dotnet:$HOME/.dotnet/tools

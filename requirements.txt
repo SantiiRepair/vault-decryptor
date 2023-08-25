@@ -1,5 +1,6 @@
 asyncio==3.4.3
 black==23.7.0
+pycryptodome==3.18.0
 requests==2.31.0
 shutup==0.2.0
 termcolor==2.3.0
