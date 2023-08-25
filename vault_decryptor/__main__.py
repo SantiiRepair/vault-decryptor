@@ -10,11 +10,12 @@ shutup.please()
 
 async def _main() -> None:
     parser = argparse.ArgumentParser(
+        usage=None,
         description=f"{colored('A fast, local Metamask Vault Decryptor in the command line', 'green')}"
     )
     parser.add_argument(
-        "-ptl",
-        "--path-to-logs",
+        "-lp",
+        "--logs-path",
         type=str,
         required=True,
         help="Path to metamask log files",
