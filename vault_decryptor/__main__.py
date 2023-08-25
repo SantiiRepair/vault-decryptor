@@ -17,7 +17,6 @@ async def _main() -> None:
         "-lp",
         "--logs-path",
         type=str,
-        required=True,
         help="Path to metamask log files",
     )
     parser.add_argument(
