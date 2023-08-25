@@ -30,7 +30,7 @@ async def _main() -> None:
 
     args = parser.parse_args()
     if args.recursive == "yes":
-        ptl = Path(args.logs_pa)
+        ptl = Path(args.logs_path)
         for logs in ptl.glob("*.log"):
             print(logs)
 
