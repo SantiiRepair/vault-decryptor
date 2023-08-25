@@ -23,14 +23,14 @@ async def _main() -> None:
     parser.add_argument(
         "-r",
         "--recursive",
-        type=bool,
-        default=False,
+        type=str,
+        default="no",
         help="Iterate over all files in the specified path",
     )
 
     args = parser.parse_args()
-    if args.recursive():
-        ptl = Path(args.path_to_logs)
+    if args.recursive == "yes":
+        ptl = Path(args.logs_pa)
         for logs in ptl.glob("*.log"):
             print(logs)
 

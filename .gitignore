@@ -1,4 +1,5 @@
 dist
+logs
 build
 __pycache__
 setup-codesandbox.sh
