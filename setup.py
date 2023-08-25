@@ -21,6 +21,7 @@ setup(
     description="A fast, local Metamask Vault Decryptor in the command line.",
     url="http://github.com/SantiiRepair/vault-decryptor",
     author="Santiago Ramirez",
+    author_email="None",
     license="MIT",
     packages=setuptools.find_packages(),
     scripts=["./scripts/vault-decryptor"],
