@@ -19,11 +19,6 @@
       "name": "lint",
       "command": "pylint --recursive yes --jobs=4 ."
     },
-    "run": {
-      "name": "run",
-      "command": "python -m vault_decryptor",
-      "runAtStart": true
-    },
     "setup": {
       "name": "setup",
       "command": "pip3 install ."
