@@ -11,7 +11,7 @@ shutup.please()
 async def _main() -> None:
     parser = argparse.ArgumentParser(
         usage="",
-        description=f"{colored('Vault Decryptor is a cli tool that allows you to decrypt vault data of Metamask Extension, this work by entering vault data path and password of the wallet extension, then if the data entered in the arguments are correct it creates a csv file with the seed phrases of the wallet', 'green')}"
+        description=f"{colored('Vault Decryptor is a cli tool that allows you to decrypt vault data of Metamask Extension, this work by entering vault data path and password of the wallet extension, then if the data entered in the arguments are correct it creates a csv file with the seed phrases of the wallet', 'green')}",
     )
     parser.add_argument(
         "-lp",
