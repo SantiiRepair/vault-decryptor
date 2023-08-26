@@ -4,7 +4,7 @@ from typing import Any
 from Crypto.Cipher import AES
 
 
-async def decrypt_with_key(key: str, payload: dict) -> Any:
+def decrypt_with_key(key: str, payload: dict) -> Any:
     encrypted_data = base64.b64decode(payload["data"])
     vector = base64.b64decode(payload["iv"])
 

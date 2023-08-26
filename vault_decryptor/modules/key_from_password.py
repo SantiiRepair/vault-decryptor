@@ -1,13 +1,10 @@
 import base64
 import hashlib
 from Crypto.Protocol.KDF import PBKDF2
-from Crypto.Cipher import AES
-
-STRING_ENCODING = "utf-8"
 
 
-async def key_from_password(password, salt, exportable=False):
-    pass_buffer = password.encode(STRING_ENCODING)
+def key_from_password(password, salt):
+    pass_buffer = password.encode("utf-8")
     salt_buffer = base64.b64decode(salt)
 
     key = PBKDF2(
