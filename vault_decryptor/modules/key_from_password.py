@@ -1,18 +1,18 @@
 import base64
-from Crypto.Hash import SHA512
-from Crypto.Protocol.KDF import PBKDF2
+from cryptography.hazmat.primitives.hashes import SHA256
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
-def key_from_password(password, salt):
-    pass_bytes = password.encode("utf-8")
-    salt_bytes = base64.b64decode(salt)
+def key_from_password(password: str, salt: str):
+    print(password)
+    password_bytes = password.encode("utf-8")
+    salt_bytes = salt.encode("utf-8")
 
-    key = PBKDF2(
-        pass_bytes,
-        salt_bytes,
-        dkLen=32,
-        count=10000,
-        hmac_hash_module=SHA512,
+    kdf = PBKDF2HMAC(
+        algorithm=SHA256(),
+        length=32,  # 256 bits key length
+        salt=salt_bytes,
+        iterations=10000,
     )
 
-    return key
+    return kdf.derive(password_bytes)

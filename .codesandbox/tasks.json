@@ -1,6 +1,6 @@
 {
   // These tasks will run in order when initializing your CodeSandbox project.
-  "setupTasks": ["pip3 install -r requirements.txt"],
+  "setupTasks": ["pip install cryptography==41.0.3; pip install -r requirements.txt"],
 
   // These tasks can be run from CodeSandbox. Running one will open a log in the app.
   "tasks": {
@@ -10,7 +10,7 @@
     },
     "install": {
       "name": "install",
-      "command": "pip3 install -r requirements.txt",
+      "command": "pip install cryptography==41.0.3; pip install -r requirements.txt",
       "restartOn": {
         "files": ["requirements.txt"]
       }
