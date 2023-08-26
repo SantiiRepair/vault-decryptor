@@ -1,10 +1,8 @@
-import json
 import shutup
 import logging
 import argparse
-from pathlib import Path
 from termcolor import colored
-from vault_decryptor.modules.decrypt import decrypt
+from vault_decryptor.modes.vault import vault
 
 # used to hide asyncio annoying warning
 shutup.please()
@@ -22,6 +20,14 @@ def main() -> None:
             "green",
         ),
     )
+
+    parser.add_argument(
+        "-k",
+        "--key",
+        type=str,
+        help="PBKDF2 derived key if you have any",
+    )
+
     parser.add_argument(
         "-l",
         "--log",
@@ -30,7 +36,22 @@ def main() -> None:
     )
 
     parser.add_argument(
-        "-p",
+        "-m",
+        "--mode",
+        type=str,
+        required=True,
+        help="Run tool mode, log or vault ",
+    )
+
+    parser.add_argument(
+        "-path",
+        "--path",
+        type=str,
+        help="Path to log or vault, folder or file",
+    )
+
+    parser.add_argument(
+        "-pass",
         "--password",
         type=str,
         help="Password of your metamask vault",
@@ -40,15 +61,7 @@ def main() -> None:
         "-r",
         "--recursive",
         type=str,
-        default="no",
         help="Iterate over all files in the specified path",
-    )
-
-    parser.add_argument(
-        "-v",
-        "--vault",
-        type=str,
-        help="Path to vault json file",
     )
 
     parser.add_argument(
@@ -63,48 +76,10 @@ def main() -> None:
     if args.debug == "yes":
         logger(True)
     logger(False)
-    if args.recursive == "yes":
-        if args.log:
-            logs = Path(args.log)
-            for log in logs.glob("*.log"):
-                print(log)
-        if args.vault:
-            if not args.password:
-                exit(
-                    print(
-                        colored(
-                            "[ERROR]: Metamask Password is required", "red"
-                        )
-                    )
-                )
-            if ".json" in args.vault:
-                exit(
-                    print(
-                        colored(
-                            "[ERROR]: Recursive mode expect folder path, not file",
-                            "red",
-                        )
-                    )
-                )
-            vaults = Path(args.vault)
-            for vault in vaults.glob("*.json"):
-                with open(vault, "r") as v:
-                    vault_data = json.load(v)
-                    print(vault_data)
-    if args.vault:
-        if ".json" in args.vault:
-            if not args.password:
-                exit(
-                    print(
-                        colored(
-                            "[ERROR]: Metamask Password is required", "red"
-                        )
-                    )
-                )
-            with open(args.vault, "r") as jsf:
-                payload = jsf.read()
-                result = decrypt(password=args.password, text=payload)
-                return result
+    if args.mode == "log":
+        vault(args.path, args.password, args.key, args.recursive)
+    if args.mode == "vault":
+        vault(args.path, args.password, args.key, args.recursive)
 
 
 def logger(boolean: bool):
