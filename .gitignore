@@ -7,4 +7,4 @@ vault_decryptor.egg-info
 
 .venv
 .gitpod.yml
-.data.json
+.vault.json
