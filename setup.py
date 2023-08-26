@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
 
-import setuptools
-from setuptools import setup
+from setuptools import find_packages, setup
 
 this_dir = Path(__file__).parent
 module_dir = this_dir / "vault_decryptor"
@@ -23,8 +22,10 @@ setup(
     author="Santiago Ramirez",
     author_email="None",
     license="MIT",
-    packages=setuptools.find_packages(),
-    scripts=["./scripts/vault-decryptor", "./scripts/vault-decryptor.ps1"],
+    packages=find_packages(),
+    entry_points={
+        "console_scripts": ["vault-decryptor = vault_decryptor.__main__:main"]
+    },
     install_requires=requirements,
     classifiers=[
         "Development Status :: 3 - Alpha",

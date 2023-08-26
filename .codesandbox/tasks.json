@@ -21,7 +21,7 @@
     },
     "setup": {
       "name": "setup",
-      "command": "pip3 install ."
+      "command": "pip3 install -e ."
     }
   }
 }

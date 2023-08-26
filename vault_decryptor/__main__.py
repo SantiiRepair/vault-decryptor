@@ -1,17 +1,21 @@
 import shutup
-import asyncio
+import logging
+# import asyncio
 import argparse
 from pathlib import Path
 from termcolor import colored
-from vault_decryptor import logger
 
 # used to hide asyncio annoying warning
 shutup.please()
 
 
-async def _main() -> None:
+def main() -> None:
+    # loop = asyncio.get_event_loop()
+    # loop.run_until_complete(main())
     parser = argparse.ArgumentParser(
-        usage="",
+        prog=f"{colored('vault-decryptor', 'yellow')}",
+        usage=f"{colored('vault-decryptor [-r] [-l]', 'green')}",
+        epilog=f"{colored('Thanks for use %(prog)s!', 'green')}",
         description=f"{colored('Vault Decryptor is a cli tool that allows you to decrypt vault data of Metamask Extension, this work by entering vault data path and password of the wallet extension, then if the data entered in the arguments are correct it creates a csv file with the seed phrases of the wallet', 'green')}",
     )
     parser.add_argument(
@@ -42,11 +46,13 @@ async def _main() -> None:
         logger(True)
     logger(False)
     if args.recursive == "yes":
-        ptl = Path(args.logs_path)
-        for logs in ptl.glob("*.log"):
+        log = Path(args.log)
+        for logs in log.glob("*.log"):
             print(logs)
 
 
-if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(_main())
+def logger(boolean):
+    logging.basicConfig(
+        format="[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s",
+        level=logging.DEBUG if boolean else logging.INFO,
+    )
