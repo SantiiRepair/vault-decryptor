@@ -78,16 +78,33 @@ def main() -> None:
                     )
                 )
             if ".json" in args.vault:
-                with open(args.vault, "r") as jsf:
-                    payload = jsf.read()
-                    result = decrypt(password=args.password, text=payload)
-                    print(result)
-                    return result
+                exit(
+                    print(
+                        colored(
+                            "[ERROR]: Recursive mode expect folder path, not file",
+                            "red",
+                        )
+                    )
+                )
             vaults = Path(args.vault)
             for vault in vaults.glob("*.json"):
                 with open(vault, "r") as v:
                     vault_data = json.load(v)
                     print(vault_data)
+    if args.vault:
+        if ".json" in args.vault:
+            if not args.password:
+                exit(
+                    print(
+                        colored(
+                            "[ERROR]: Metamask Password is required", "red"
+                        )
+                    )
+                )
+            with open(args.vault, "r") as jsf:
+                payload = jsf.read()
+                result = decrypt(password=args.password, text=payload)
+                return result
 
 
 def logger(boolean: bool):
