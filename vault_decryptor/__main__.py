@@ -51,7 +51,7 @@ def main() -> None:
             print(logs)
 
 
-def logger(boolean):
+def logger(boolean: bool):
     logging.basicConfig(
         format="[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s",
         level=logging.DEBUG if boolean else logging.INFO,
