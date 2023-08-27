@@ -1,3 +1,4 @@
+from sys import exit
 from pathlib import Path
 from termcolor import colored
 from vault_decryptor.modules.decrypt import decrypt
@@ -19,8 +20,8 @@ def vault(path: str, password: str, key_bytes="", recursive="no"):
                 )
             )
         vaults = Path(path)
-        for vault in vaults.glob("*.json"):
-            with open(vault, "r") as jsf:
+        for vault_path in vaults.glob("*.json"):
+            with open(vault_path, "r") as jsf:
                 text = jsf.read()
                 decrypt(password, text, key_bytes)
     with open(path, "r") as jsf:
