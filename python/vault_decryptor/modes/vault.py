@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 from termcolor import colored
-from vault_decryptor.modules.decrypt import decrypt
+from vault_decryptor.decrypt.decrypt import decrypt
 
 
 def vault(path: str, password: str, key_bytes="", recursive="no"):

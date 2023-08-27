@@ -1,8 +1,8 @@
 import json
 from typing import Any
 from termcolor import colored
-from vault_decryptor.modules.decrypt_with_key import decrypt_with_key
-from vault_decryptor.modules.key_from_password import key_from_password
+from vault_decryptor.decrypt.decrypt_with_key import decrypt_with_key
+from vault_decryptor.decrypt.key_from_password import key_from_password
 
 
 def decrypt(password: str, text: str, key_bytes: str = None) -> Any:
