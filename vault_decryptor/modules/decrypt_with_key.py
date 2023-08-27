@@ -2,26 +2,19 @@ import json
 import base64
 from typing import Dict
 from termcolor import colored
-from cryptography.exceptions import InvalidKey, InvalidTag
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from Crypto.Cipher import AES
 
 
 def decrypt_with_key(key: bytes, payload: Dict) -> Dict:
     try:
-        encrypted = base64.b64decode(payload["data"])
+        data = base64.b64decode(payload["data"])[:-16]
         iv = base64.b64decode(payload["iv"])
-        data = encrypted[0 : len(encrypted) - 16]
-        tag = encrypted[len(encrypted) - 16 : len(encrypted)]
-        decrypted_data = AESGCM(key).decrypt(
-            iv, data=data, associated_data=tag
-        )
+        cipher = AES.new(key, mode=AES.MODE_GCM, nonce=iv)
+        decrypted_data = cipher.decrypt(data)
         print(decrypted_data)
         decrypted = json.loads(decrypted_data)
-        print(decrypted)
         return decrypted
     except (Exception, ValueError) as e:
-        if isinstance(e, InvalidTag):
-            exit(print(colored("[ERROR]: Invalid Tag", "red")))
-        if isinstance(e, InvalidKey):
-            exit(print(colored("[ERROR]: Invalid Key", "red")))
+        # if isinstance(e, UnicodeDecodeError):
+        # exit(print(colored("[ERROR]: Incorrect Password", "red")))
         print(colored(f"[ERROR]: {e}", "red"))
