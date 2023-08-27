@@ -1,10 +1,8 @@
-import base64
 from cryptography.hazmat.primitives.hashes import SHA256
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
 def key_from_password(password: str, salt: str):
-    print(password)
     password_bytes = password.encode("utf-8")
     salt_bytes = salt.encode("utf-8")
 
