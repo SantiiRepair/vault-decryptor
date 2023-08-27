@@ -1,27 +1,27 @@
 {
   // These tasks will run in order when initializing your CodeSandbox project.
-  "setupTasks": ["pip install cryptography==41.0.3; pip install -r requirements.txt"],
+  "setupTasks": ["cd python; pip install -r requirements.txt"],
 
   // These tasks can be run from CodeSandbox. Running one will open a log in the app.
   "tasks": {
     "format": {
       "name": "format",
-      "command": "black . --line-length 79"
+      "command": "cd python; black . --line-length 79"
     },
     "install": {
       "name": "install",
-      "command": "pip install cryptography==41.0.3; pip install -r requirements.txt",
+      "command": "cd python; pip install -r requirements.txt",
       "restartOn": {
         "files": ["requirements.txt"]
       }
     },
     "lint": {
       "name": "lint",
-      "command": "pylint --recursive yes --jobs=4 ."
+      "command": "cd python; pylint --recursive yes --jobs=4 ."
     },
     "setup": {
       "name": "setup",
-      "command": "pip3 install -e ."
+      "command": "cd python; pip3 install -e ."
     }
   }
 }
