@@ -109,6 +109,7 @@ disable=missing-docstring,
         not-callable,
         import-outside-toplevel,
         logging-fstring-interpolation,
+        inconsistent-return-statements,
         logging-not-lazy
 
 # Enable the message, report, category or checker with the given id(s). You can
