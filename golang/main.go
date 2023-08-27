@@ -1,15 +1,14 @@
 package main
 
 import (
-	"path/filepath"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
-	"os"
-	"fmt"
 	"flag"
+	"fmt"
+
 	"golang.org/x/crypto/pbkdf2"
 )
 
@@ -31,7 +30,9 @@ type Vault struct {
 func main() {
 	var payload Payload
 	var wallet = []byte(``)
+	var files []string
 	json.Unmarshal(wallet, &payload)
+
 	mode := flag.CommandLine.String("mode", "", "Run tool as, log or vault mode")
 	password := flag.CommandLine.String("password", "", "Password of asoc metamask")
 	path := flag.CommandLine.String("path", "", "Path to log or vault, folder or file")
@@ -42,12 +43,13 @@ func main() {
 	data, _ := base64.StdEncoding.DecodeString(payload.Data)
 
 	if *mode == "vault" {
-		glob, err := pathInfo(*path, []string{ ".log", ".json"})
+		glob, err := pathInfo(*path, []string{".log", ".json"})
 		if err != nil {
 			fmt.Println(err)
 		}
+		files = append(files, glob...)
 	}
-	
+
 	key := pbkdf2.Key([]byte(*password), salt, 10000, 32, sha256.New)
 	block, _ := aes.NewCipher(key)
 
@@ -61,6 +63,6 @@ func main() {
 
 	var vault []Vault
 	json.Unmarshal(plaintext, &vault)
-	fmt.Printf(vault)
+	fmt.Println(vault)
 	fmt.Println(string(vault[0].Data.Mnemonic))
 }
