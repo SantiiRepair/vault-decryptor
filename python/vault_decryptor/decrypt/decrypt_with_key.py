@@ -11,10 +11,7 @@ def decrypt_with_key(key: bytes, payload: Dict) -> Dict:
         iv = base64.b64decode(payload["iv"])
         cipher = AES.new(key, mode=AES.MODE_GCM, nonce=iv)
         decrypted_bytes = cipher.decrypt(data)
-        decrypted_text = decrypted_bytes.rstrip(b"\\").decode(
-            "utf-8", "ignore"
-        )
-        print(decrypted_text)
+        decrypted_text = decrypted_bytes.decode()
         decrypted = json.loads(decrypted_text)
         return decrypted
     except (Exception, ValueError) as e:
