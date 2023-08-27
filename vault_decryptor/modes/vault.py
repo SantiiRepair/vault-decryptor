@@ -3,7 +3,7 @@ from termcolor import colored
 from vault_decryptor.modules.decrypt import decrypt
 
 
-def vault(path: str, password: str, key="", recursive="no"):
+def vault(path: str, password: str, key_bytes="", recursive="no"):
     if recursive == "yes":
         if not password:
             exit(
@@ -22,7 +22,7 @@ def vault(path: str, password: str, key="", recursive="no"):
         for vault in vaults.glob("*.json"):
             with open(vault, "r") as jsf:
                 text = jsf.read()
-                decrypt(password=password, text=text)
+                decrypt(password, text, key_bytes)
     with open(path, "r") as jsf:
         text = jsf.read()
-        decrypt(password=password, text=text)
+        decrypt(password, text, key_bytes)
