@@ -12,15 +12,15 @@ def decrypt(password: str, text: str, key_bytes: str = None) -> Any:
         print(colored(f"[ERROR]: {e}", "red"))
     if "KeyringController" in text:
         salt = payload["KeyringController"]["vault"]["salt"]
-        key = key_bytes or key_from_password(password, salt=salt)
+        key = key_bytes or key_from_password(password, salt)
         result = decrypt_with_key(key, payload["KeyringController"]["vault"])
         return result
     if "vault" in text:
         salt = payload["vault"]["salt"]
-        key = key_bytes or key_from_password(password, salt=salt)
+        key = key_bytes or key_from_password(password, salt)
         result = decrypt_with_key(key, payload["vault"])
         return result
     salt = payload["salt"]
-    key = key_bytes or key_from_password(password, salt=salt)
+    key = key_bytes or key_from_password(password, salt)
     result = decrypt_with_key(key, payload)
     return result
