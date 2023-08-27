@@ -1,6 +1,6 @@
 {
   // These tasks will run in order when initializing your CodeSandbox project.
-  "setupTasks": ["cd python; pip install -r requirements.txt"],
+  "setupTasks": ["scripts/install.sh"],
 
   // These tasks can be run from CodeSandbox. Running one will open a log in the app.
   "tasks": {
@@ -10,9 +10,9 @@
     },
     "install": {
       "name": "install",
-      "command": "cd python; pip install -r requirements.txt",
+      "command": "bash scripts/install.sh",
       "restartOn": {
-        "files": ["requirements.txt"]
+        "files": ["scripts/install.sh"]
       }
     },
     "lint": {
