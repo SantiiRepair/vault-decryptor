@@ -40,7 +40,7 @@ def main() -> None:
         "--mode",
         type=str,
         required=True,
-        help="Run tool mode, log or vault ",
+        help="Run tool as, log or vault mode",
     )
 
     parser.add_argument(
