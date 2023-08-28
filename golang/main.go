@@ -10,6 +10,8 @@ import (
 	"fmt"
 
 	"golang.org/x/crypto/pbkdf2"
+	"github.com/spf13/cobra"
+	"github.com/fatih/color"
 )
 
 type Payload struct {
