@@ -1,11 +1,11 @@
-package main
+package cmd
 
 import (
 	"crypto/sha256"
 	"golang.org/x/crypto/pbkdf2"
 )
 
-func keyFromPassword(password string, saltByte []byte) []byte {
-	key := pbkdf2.Key([]byte(password), saltByte, 10000, 32, sha256.New)
+func keyFromPassword(passwordByte []byte, saltByte []byte) []byte {
+	key := pbkdf2.Key(passwordByte, saltByte, 10000, 32, sha256.New)
 	return key
 }
