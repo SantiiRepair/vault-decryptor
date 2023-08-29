@@ -14,8 +14,8 @@ var rootCmd = &cobra.Command{
 	Use:   "vault-decryptor",
 	Short: "A fast, local Metamask Vault Decryptor in the command line.",
 	Run: func(cmd *cobra.Command, args []string) {
-		magenta := color.New(color.FgMagenta).PrintFunc()
-		magenta(ascii)
+		red := color.New(color.FgRed).PrintFunc()
+		red(sticker)
 	},
 }
 
