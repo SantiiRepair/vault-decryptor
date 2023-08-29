@@ -9,8 +9,6 @@ shutup.please()
 
 
 def main() -> None:
-    # loop = asyncio.get_event_loop()
-    # loop.run_until_complete(main())
     parser = argparse.ArgumentParser(
         prog=colored("vault-decryptor", "yellow"),
         usage=colored("vault-decryptor [-r] [-l]", "green"),
@@ -54,7 +52,7 @@ def main() -> None:
         "-pass",
         "--password",
         type=str,
-        help="Password of your metamask vault",
+        help="Password of your Metamask wallet",
     )
 
     parser.add_argument(
