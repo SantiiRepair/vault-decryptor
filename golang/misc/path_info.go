@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func pathInfo(path string, extensions []string) ([]string, error) {
+func PathInfo(path string, extension string) ([]string, error) {
 	var files []string
 
 	err := filepath.Walk(path, func(filePath string, info os.FileInfo, err error) error {
@@ -16,11 +16,9 @@ func pathInfo(path string, extensions []string) ([]string, error) {
 
 		if !info.IsDir() {
 			fileExt := strings.ToLower(filepath.Ext(filePath))
-			for _, ext := range extensions {
-				if fileExt == ext {
+			if fileExt == extension {
 					files = append(files, filePath)
-					break
-				}
+				
 			}
 		}
 
