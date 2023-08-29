@@ -5,15 +5,15 @@ package cmd
 
 import (
 	"encoding/base64"
+	"encoding/csv"
 	"encoding/json"
-	"os"
-	"path/filepath"
-	"strings"
-
 	"github.com/SantiiRepair/vault-decryptor/decryptor"
 	"github.com/SantiiRepair/vault-decryptor/misc"
 	color "github.com/fatih/color"
 	"github.com/spf13/cobra"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 var jsonCmd = &cobra.Command{
@@ -22,7 +22,6 @@ var jsonCmd = &cobra.Command{
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
 		var key []byte
-		var vault []Vault
 		var payload Payload
 		var plaintext []byte
 
@@ -46,7 +45,7 @@ var jsonCmd = &cobra.Command{
 		if recursive == "no" {
 			content, err := os.ReadFile(path)
 			if err != nil {
-				red(err)
+				red("[ERROR]: %s", err)
 				os.Exit(1)
 			}
 
@@ -77,7 +76,7 @@ var jsonCmd = &cobra.Command{
 		for _, file := range glob {
 			content, err := os.ReadFile(file)
 			if err != nil {
-				red(err)
+				red("[ERROR]: %s", err)
 				os.Exit(1)
 			}
 
@@ -99,16 +98,16 @@ var jsonCmd = &cobra.Command{
 			}
 
 		}
-
-		json.Unmarshal(plaintext, &vault)
-		output, err := json.Marshal(vault)
-		if err != nil {
-			red(err)
-			os.Exit(1)
+		csv_file, err := os.Open("../csv/account.csv")
+		if err == os.ErrNotExist {
+			os.Create("../csv/account.csv")
 		}
-
-		green(output)
-		// fmt.Println(string(vault[0].Data.Mnemonic))
+		if err != os.ErrNotExist {
+			red("[ERROR]: %s", err)
+		}
+		writer := csv.NewWriter(csv_file)
+		writer.Write([]string(plaintext[:]))
+		green("[INFO]: Successfuly saved CSV with new values!")
 	},
 }
 

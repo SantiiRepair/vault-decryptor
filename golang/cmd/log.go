@@ -119,4 +119,3 @@ func init() {
 	logCmd.Flags().StringP("recursive", "r", "", "Iterate over all files in the specified path")
 	logCmd.PersistentFlags().String("vault-decryptor", "", "Usage: vault-decryptor log [--r] [--pass] [--path]")
 }
-
