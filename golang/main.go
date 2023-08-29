@@ -1,30 +1,29 @@
 /*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
+Copyright © 2023 Santiago Ramirez
 */
 package main
 
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/SantiiRepair/vault-decryptor/decryptor"
 	"github.com/SantiiRepair/vault-decryptor/misc"
-	"github.com/fatih/color"
+	color "github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
 func main() {
-
 	var r string
 	var mode string
 	var pass string
 	var path string
 	var plaintext []byte
-	red := color.New(color.Red())
+	red := color.New(color.FgRed).PrintFunc()
+	green := color.New(color.FgRed).PrintFunc()
 
 	var rootCmd = &cobra.Command{
 		Use:   "vault-decryptor",
@@ -35,26 +34,26 @@ func main() {
 			var payload Payload
 
 			if r == "" {
-				red.Println("Missing argument '--r' in list.")
+				red("Missing argument '--r' in list.")
 				os.Exit(1)
 			}
 			if mode == "" {
-				red.Println("Missing argument '--mode' in list.")
+				red("Missing argument '--mode' in list.")
 				os.Exit(1)
 			}
 			if pass == "" && path == "" {
-				red.Println("Missing argument '--pass' in list.")
+				red("Missing argument '--pass' in list.")
 				os.Exit(1)
 			}
 			if path == "" {
-				red.Println("Missing argument '--path' in list.")
+				red("Missing argument '--path' in list.")
 				os.Exit(1)
 			}
 
 			if r == "no" {
 				content, err := os.ReadFile(path)
 				if err != nil {
-					red.Println(err)
+					red(err)
 					os.Exit(1)
 				}
 
@@ -71,13 +70,13 @@ func main() {
 			if mode == "log" {
 				glob, err := misc.PathInfo(path, strings.ToLower(filepath.Ext(path)))
 				if err != nil {
-					red.Println(err)
+					red(err)
 				}
 
 				for _, file := range glob {
 					content, err := os.ReadFile(file)
 					if err != nil {
-						red.Println(err)
+						red(err)
 						os.Exit(1)
 					}
 
@@ -95,13 +94,13 @@ func main() {
 			if mode == "json" {
 				glob, err := misc.PathInfo(path, strings.ToLower(filepath.Ext(path)))
 				if err != nil {
-					fmt.Println(err)
+					red(err)
 				}
 
 				for _, file := range glob {
 					content, err := os.ReadFile(file)
 					if err != nil {
-						red.Println(err)
+						red(err)
 						os.Exit(1)
 					}
 
@@ -117,7 +116,7 @@ func main() {
 			}
 
 			json.Unmarshal(plaintext, &vault)
-			fmt.Println(vault)
+			green(vault)
 			// fmt.Println(string(vault[0].Data.Mnemonic))
 		},
 	}
