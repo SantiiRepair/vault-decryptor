@@ -23,7 +23,6 @@ func main() {
 	var mode string
 	var pass string
 	var path string
-	var wallet string
 	var plaintext []byte
 	red := color.New(color.Red())
 
@@ -33,7 +32,6 @@ func main() {
 		Long:  "Vault Decryptor is a cli tool that allows you to decrypt vault data of Metamask Extension, this work by entering vault data path and password of the wallet extension, then if the data entered in the arguments are correct it creates a csv file with the seed phrases of the wallet.",
 		Run: func(cmd *cobra.Command, args []string) {
 			var vault []Vault
-			var files []string
 			var payload Payload
 
 			if r == "" {
@@ -53,17 +51,29 @@ func main() {
 				os.Exit(1)
 			}
 
-			ivByte, _ := base64.StdEncoding.DecodeString(payload.Iv)
-			saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
-			dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
+			if r == "no" {
+				content, err := os.ReadFile(path)
+				if err != nil {
+					red.Println(err)
+					os.Exit(1)
+				}
+
+				json.Unmarshal(content, &payload)
+
+				ivByte, _ := base64.StdEncoding.DecodeString(payload.Iv)
+				saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
+				dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
+
+				key := misc.KeyFromPassword([]byte(pass), saltByte)
+				plaintext = decryptor.WithKey(key, dataByte, ivByte)
+			}
 
 			if mode == "log" {
 				glob, err := misc.PathInfo(path, strings.ToLower(filepath.Ext(path)))
 				if err != nil {
-					fmt.Println(err)
+					red.Println(err)
 				}
 
-				files = append(files, glob...)
 				for _, file := range glob {
 					content, err := os.ReadFile(file)
 					if err != nil {
@@ -72,6 +82,11 @@ func main() {
 					}
 
 					json.Unmarshal(content, &payload)
+
+					ivByte, _ := base64.StdEncoding.DecodeString(payload.Iv)
+					saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
+					dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
+
 					key := misc.KeyFromPassword([]byte(pass), saltByte)
 					plaintext = decryptor.WithKey(key, dataByte, ivByte)
 				}
@@ -83,7 +98,6 @@ func main() {
 					fmt.Println(err)
 				}
 
-				files = append(files, glob...)
 				for _, file := range glob {
 					content, err := os.ReadFile(file)
 					if err != nil {
@@ -92,6 +106,11 @@ func main() {
 					}
 
 					json.Unmarshal(content, &payload)
+
+					ivByte, _ := base64.StdEncoding.DecodeString(payload.Iv)
+					saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
+					dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
+
 					key := misc.KeyFromPassword([]byte(pass), saltByte)
 					plaintext = decryptor.WithKey(key, dataByte, ivByte)
 				}
