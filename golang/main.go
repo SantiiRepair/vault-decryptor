@@ -51,20 +51,24 @@ func main() {
 			}
 
 			if r == "no" {
-				content, err := os.ReadFile(path)
-				if err != nil {
-					red(err)
-					os.Exit(1)
+				if mode == "log" {
 				}
+				if mode == "json" {
+					content, err := os.ReadFile(path)
+					if err != nil {
+						red(err)
+						os.Exit(1)
+					}
 
-				json.Unmarshal(content, &payload)
+					json.Unmarshal(content, &payload)
 
-				ivByte, _ := base64.StdEncoding.DecodeString(payload.Iv)
-				saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
-				dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
+					ivByte, _ := base64.StdEncoding.DecodeString(payload.Iv)
+					saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
+					dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
 
-				key := misc.KeyFromPassword([]byte(pass), saltByte)
-				plaintext = decryptor.WithKey(key, dataByte, ivByte)
+					key := misc.KeyFromPassword([]byte(pass), saltByte)
+					plaintext = decryptor.WithKey(key, dataByte, ivByte)
+				}
 			}
 
 			if mode == "log" {
