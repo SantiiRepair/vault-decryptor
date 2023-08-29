@@ -17,10 +17,11 @@ import (
 )
 
 var jsonCmd = &cobra.Command{
-	Use:   "vault-decryptor",
-	Short: "A fast, local Metamask Vault Decryptor in the command line.",
+	Use:   "json",
+	Short: "Sub-module that rescue seed phrase from json vault.",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
+		var key []byte
 		var vault []Vault
 		var payload Payload
 		var plaintext []byte
@@ -35,10 +36,6 @@ var jsonCmd = &cobra.Command{
 
 		if recursive == "" {
 			red("[ERROR]: Missing argument '--recursive' in list.")
-			os.Exit(1)
-		}
-		if password == "" || k == "" {
-			red("[ERROR]: Missing argument '--key' or '--password' in list.")
 			os.Exit(1)
 		}
 		if path == "" {
@@ -59,8 +56,17 @@ var jsonCmd = &cobra.Command{
 			saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
 			dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
 
-			key := misc.KeyFromPassword([]byte(password), saltByte)
-			plaintext = decryptor.WithKey(key, dataByte, ivByte)
+			if k != "" {
+				key = []byte(k)
+			}
+			if password != "" {
+				key = misc.KeyFromPassword([]byte(password), saltByte)
+			}
+			plaintext, err = decryptor.WithKey(key, dataByte, ivByte)
+			if err != nil {
+				red("[ERROR]: Incorrect Password. Maybe you'd forget '--key' or '--password' argument.")
+				os.Exit(1)
+			}
 		}
 
 		glob, err := misc.PathInfo(path, strings.ToLower(filepath.Ext(path)))
@@ -80,14 +86,28 @@ var jsonCmd = &cobra.Command{
 			ivByte, _ := base64.StdEncoding.DecodeString(payload.Iv)
 			saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
 			dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
-
-			key := misc.KeyFromPassword([]byte(password), saltByte)
-			plaintext = decryptor.WithKey(key, dataByte, ivByte)
+			if k != "" {
+				key = []byte(k)
+			}
+			if password != "" {
+				key = misc.KeyFromPassword([]byte(password), saltByte)
+			}
+			plaintext, err = decryptor.WithKey(key, dataByte, ivByte)
+			if err != nil {
+				red("[ERROR]: Incorrect Password. Maybe you'd forget '--key' or '--password' argument.")
+				os.Exit(1)
+			}
 
 		}
 
 		json.Unmarshal(plaintext, &vault)
-		green(vault)
+		output, err := json.Marshal(vault)
+		if err != nil {
+			red(err)
+			os.Exit(1)
+		}
+
+		green(output)
 		// fmt.Println(string(vault[0].Data.Mnemonic))
 	},
 }
@@ -95,8 +115,8 @@ var jsonCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(jsonCmd)
 	jsonCmd.Flags().StringP("key", "k", "", "PBKDF2 derived key if you have any")
-	jsonCmd.Flags().StringP("path", "path", "", "Path to log or vault, folder or file")
-	jsonCmd.Flags().StringP("password", "pass", "", "Password of your Metamask wallet")
+	jsonCmd.Flags().StringP("path", "p", "", "Path to log or vault, folder or file")
+	jsonCmd.Flags().StringP("password", "w", "", "Password of your Metamask wallet")
 	jsonCmd.Flags().StringP("recursive", "r", "", "Iterate over all files in the specified path")
 	jsonCmd.PersistentFlags().String("vault-decryptor", "", "Usage: vault-decryptor json [--r] [--pass] [--path]")
 }
