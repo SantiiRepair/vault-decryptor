@@ -1,14 +1,14 @@
 package misc
 
 import (
-	"os"
 	"crypto/ecdsa"
-	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
+	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	color "github.com/fatih/color"
 	bip39 "github.com/tyler-smith/go-bip39"
+	"os"
 )
 
 func FromMnemonic(mnemonic string) ([]string, error) {
