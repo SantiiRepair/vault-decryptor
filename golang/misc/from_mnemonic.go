@@ -2,7 +2,9 @@ package misc
 
 import (
 	"os"
-
+	"crypto/ecdsa"
+	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	color "github.com/fatih/color"
@@ -26,6 +28,6 @@ func FromMnemonic(mnemonic string) ([]string, error) {
 		os.Exit(1)
 	}
 
-	address, privateKey := crypto.PubkeyToAddress(publicKeyECDSA), hexutil.Encode(crypto.FromECDSA(privateKeyECDSA))[2:]
-	return []string{address, privateKey}, nil
+	address, ethPrivateKey := crypto.PubkeyToAddress(*publicKeyECDSA), hexutil.Encode(crypto.FromECDSA(privateKeyECDSA))[2:]
+	return []string{address, ethPrivateKey}, nil
 }
