@@ -115,7 +115,7 @@ var jsonCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		csv_file, err := os.Open(csv_path)
+		csv_file, err := os.OpenFile(csv_path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if os.IsNotExist(err) {
 			_, crterr := os.Create(csv_path)
 			if crterr != nil {
