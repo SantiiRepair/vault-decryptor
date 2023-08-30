@@ -151,6 +151,11 @@ var jsonCmd = &cobra.Command{
 						}
 					}
 				}
+
+				if len(plaintext) == 0 {
+					red.Println("[ERROR]: No vault json could be decrypted.")
+					os.Exit(1)
+				}
 			}
 		}
 
