@@ -25,34 +25,40 @@ var jsonCmd = &cobra.Command{
 		var vault []Vault
 		var payload Payload
 		var plaintext []byte
+		var output_csv string
 
-		red := color.New(color.FgRed).PrintFunc()
-		green := color.New(color.FgGreen).PrintFunc()
+		red := color.New(color.FgRed)
+		green := color.New(color.FgGreen)
 
 		this, err := os.Getwd()
 		if err != nil {
-			red("[ERROR]: ", err)
+			red.Printf("[ERROR]: %s", err)
 			os.Exit(1)
 		}
 
 		k := cmd.Flag("key").Value.String()
 		password := cmd.Flag("password").Value.String()
 		path := cmd.Flag("path").Value.String()
+		output := cmd.Flag("output").Value.String()
 		recursive := cmd.Flag("recursive").Value.String()
 
 		if recursive == "" {
-			red("[ERROR]: Missing argument '--recursive' in list.")
+			red.Println("[ERROR]: Missing argument '--recursive' in list.")
 			os.Exit(1)
 		}
 		if path == "" {
-			red("[ERROR]: Missing argument '--path' in list.")
+			red.Println("[ERROR]: Missing argument '--path' in list.")
+			os.Exit(1)
+		}
+		if output == "" {
+			red.Println("[ERROR]: Missing argument '--output' in list.")
 			os.Exit(1)
 		}
 
 		if recursive == "no" {
 			content, err := os.ReadFile(path)
 			if err != nil {
-				red("[ERROR]: ", err)
+				red.Printf("[ERROR]: %s", err)
 				os.Exit(1)
 			}
 
@@ -70,7 +76,7 @@ var jsonCmd = &cobra.Command{
 			}
 			plaintext, err = decryptor.WithKey(key, dataByte, ivByte)
 			if err != nil {
-				red("[ERROR]: Incorrect Password. Maybe you'd forget '--key' or '--password' argument.")
+				red.Println("[ERROR]: Incorrect Password. Maybe you'd forget '--key' or '--password' argument.")
 				os.Exit(1)
 			}
 		}
@@ -78,19 +84,19 @@ var jsonCmd = &cobra.Command{
 		if recursive == "yes" {
 			files, err := misc.PathInfo(path, ".json")
 			if err != nil {
-				red("[ERROR]: ", err)
+				red.Printf("[ERROR]: %s", err)
 				os.Exit(1)
 			}
 
 			if len(files) <= 1 {
-				red("[ERROR]: Found 1 file, expected more than 1.")
+				red.Println("[ERROR]: Found 1 file, expected more than 1.")
 				os.Exit(1)
 			}
 
 			for i := 0; i < len(files); i++ {
 				content, err := os.ReadFile(files[i])
 				if err != nil {
-					red("[ERROR]: ", err)
+					red.Printf("[ERROR]: %s", err)
 					os.Exit(1)
 				}
 
@@ -104,12 +110,12 @@ var jsonCmd = &cobra.Command{
 					kss, err := os.ReadFile(k)
 					lines := strings.Split(string(kss), "\n")
 					if err != nil {
-						red("[ERROR]: ", err)
+						red.Printf("[ERROR]: %s", err)
 						os.Exit(1)
 					}
 
-					if len(kss) <= 1 {
-						red("[ERROR]: Found %d files, expected more than 1 key.", len(files))
+					if len(lines) <= 1 {
+						red.Printf("[ERROR]: Found %d files, then more than 1 key is expected.", len(files))
 						os.Exit(1)
 					}
 
@@ -125,12 +131,12 @@ var jsonCmd = &cobra.Command{
 					pswds, err := os.ReadFile(password)
 					lines := strings.Split(string(pswds), "\n")
 					if err != nil {
-						red("[ERROR]: ", err)
+						red.Printf("[ERROR]: %s", err)
 						os.Exit(1)
 					}
 
-					if len(pswds) <= 1 {
-						red("[ERROR]: Found %d files, expected more than 1 password.", len(files))
+					if len(lines) <= 1 {
+						red.Printf("[ERROR]: Found %d files, then more than 1 password is expected.", len(files))
 						os.Exit(1)
 					}
 
@@ -145,23 +151,27 @@ var jsonCmd = &cobra.Command{
 			}
 		}
 
-		csv_path := fmt.Sprintf("%s/csv/metamask.csv", this)
-		mkerr := os.Mkdir(fmt.Sprintf("%s/csv", this), 0755)
+		if strings.Contains(output, "/") {
+			output_csv = fmt.Sprintf("%s/output.csv", output)
+		} else if !strings.Contains(output, "/") {
+			output_csv = fmt.Sprintf("%s/output.csv", this)
+		}
+		mkerr := os.Mkdir(output, 0755)
 		if !os.IsExist(mkerr) {
-			red("[ERROR]: ", mkerr)
+			red.Printf("[ERROR]: %s", mkerr)
 			os.Exit(1)
 		}
 
-		csv_file, err := os.OpenFile(csv_path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		csv_file, err := os.OpenFile(output_csv, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err != nil {
-			red("[ERROR]: ", err)
+			red.Printf("[ERROR]: %s", err)
 			os.Exit(1)
 		}
 
 		defer csv_file.Close()
-		fileInfo, err := os.Stat(csv_path)
+		fileInfo, err := os.Stat(output_csv)
 		if err != nil {
-			red("[ERROR]: ", err)
+			red.Printf("[ERROR]: %s", err)
 			os.Exit(1)
 		}
 
@@ -172,19 +182,19 @@ var jsonCmd = &cobra.Command{
 			crecord := []string{"Mnemonic", "HDPath"}
 			wterr := writer.Write(crecord)
 			if wterr != nil {
-				red("[ERROR]: ", wterr)
+				red.Printf("[ERROR]: %s", wterr)
 				os.Exit(1)
 			}
 		}
 
 		wterr := writer.Write(record)
 		if wterr != nil {
-			red("[ERROR]: ", wterr)
+			red.Printf("[ERROR]: %s", wterr)
 			os.Exit(1)
 		}
 
 		writer.Flush()
-		green("[INFO]: Successfuly saved CSV with new values!")
+		green.Println("[INFO]: Successfuly saved CSV with new values!")
 	},
 }
 

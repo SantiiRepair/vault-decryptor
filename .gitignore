@@ -6,6 +6,7 @@ build
 cmdexp
 vaults
 __pycache__
+output.csv
 vault_decryptor.egg-info
 
 .venv
