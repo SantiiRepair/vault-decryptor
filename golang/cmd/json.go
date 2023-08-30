@@ -7,26 +7,34 @@ import (
 	"encoding/base64"
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/SantiiRepair/vault-decryptor/decryptor"
 	"github.com/SantiiRepair/vault-decryptor/misc"
 	color "github.com/fatih/color"
 	"github.com/spf13/cobra"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
 var jsonCmd = &cobra.Command{
 	Use:   "json",
 	Short: "Sub-module that rescue seed phrase from json vault.",
-	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
 		var key []byte
+		var vault []Vault
 		var payload Payload
 		var plaintext []byte
 
 		red := color.New(color.FgRed).PrintFunc()
 		green := color.New(color.FgGreen).PrintFunc()
+
+		this, err := os.Getwd()
+		if err != nil {
+			red("[ERROR]: ", err)
+			os.Exit(1)
+		}
 
 		k := cmd.Flag("key").Value.String()
 		password := cmd.Flag("password").Value.String()
@@ -45,7 +53,7 @@ var jsonCmd = &cobra.Command{
 		if recursive == "no" {
 			content, err := os.ReadFile(path)
 			if err != nil {
-				red("[ERROR]: %s", err)
+				red("[ERROR]: ", err)
 				os.Exit(1)
 			}
 
@@ -76,7 +84,7 @@ var jsonCmd = &cobra.Command{
 		for _, file := range glob {
 			content, err := os.ReadFile(file)
 			if err != nil {
-				red("[ERROR]: %s", err)
+				red("[ERROR]: ", err)
 				os.Exit(1)
 			}
 
@@ -98,15 +106,35 @@ var jsonCmd = &cobra.Command{
 			}
 
 		}
-		csv_file, err := os.Open("../csv/account.csv")
-		if err == os.ErrNotExist {
-			os.Create("../csv/account.csv")
+
+		csv_path := fmt.Sprintf("%s/csv/metamask.csv", this)
+		mkerr := os.Mkdir(fmt.Sprintf("%s/csv", this), 0755)
+		if os.IsExist(mkerr) {}
+		if !os.IsExist(mkerr) {
+			red("[ERROR]: ", mkerr)
+			os.Exit(1)
 		}
-		if err != os.ErrNotExist {
-			red("[ERROR]: %s", err)
+
+		csv_file, err := os.Open(csv_path)
+		if os.IsNotExist(err) {
+			_, crterr := os.Create(csv_path)
+			if crterr != nil {
+				red("[ERROR]: ", crterr)
+				os.Exit(1)
+			}
 		}
+
+		defer csv_file.Close()
+		json.Unmarshal(plaintext, &vault)
+		record := []string{string(vault[0].Data.Mnemonic), vault[0].Data.HDPath}
 		writer := csv.NewWriter(csv_file)
-		writer.Write([]string(plaintext[:]))
+		wterr := writer.Write(record)
+		if wterr != nil {
+			red("[ERROR]: ", wterr)
+			os.Exit(1)
+		}
+
+		writer.Flush()
 		green("[INFO]: Successfuly saved CSV with new values!")
 	},
 }
@@ -117,5 +145,5 @@ func init() {
 	jsonCmd.Flags().StringP("path", "p", "", "Path to log or vault, folder or file")
 	jsonCmd.Flags().StringP("password", "w", "", "Password of your Metamask wallet")
 	jsonCmd.Flags().StringP("recursive", "r", "", "Iterate over all files in the specified path")
-	jsonCmd.PersistentFlags().String("vault-decryptor", "", "Usage: vault-decryptor json [--r] [--pass] [--path]")
+	jsonCmd.PersistentFlags().String("json", "", "Usage: vault-decryptor json [--r] [--pass] [--path]")
 }
