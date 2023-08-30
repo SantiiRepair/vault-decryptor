@@ -28,6 +28,6 @@ func FromMnemonic(mnemonic string) ([]string, error) {
 		os.Exit(1)
 	}
 
-	address, ethPrivateKey := crypto.PubkeyToAddress(*publicKeyECDSA), hexutil.Encode(crypto.FromECDSA(privateKeyECDSA))[2:]
+	address, ethPrivateKey := crypto.PubkeyToAddress(*publicKeyECDSA).String(), hexutil.Encode(crypto.FromECDSA(privateKeyECDSA))[2:]
 	return []string{address, ethPrivateKey}, nil
 }

@@ -24,6 +24,7 @@ var jsonCmd = &cobra.Command{
 		var pbkdf2 []byte
 		var vault []Vault
 		var payload Payload
+		var passwords []string
 		var plaintext [][]byte
 		var output_csv string
 
@@ -81,11 +82,13 @@ var jsonCmd = &cobra.Command{
 				pbkdf2 = misc.KeyFromPassword([]byte(password), saltByte)
 			}
 			text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
-			plaintext = append(plaintext, text)
 			if err != nil {
 				red.Println("[ERROR]: Incorrect Password. Maybe you'd forget '--key' or '--password' argument.")
 				os.Exit(1)
 			}
+
+			plaintext = append(plaintext, text)
+			passwords = append(passwords, password)
 		}
 
 		if recursive == "yes" {
@@ -135,10 +138,13 @@ var jsonCmd = &cobra.Command{
 					for _, ks := range lines {
 						pbkdf2 = misc.KeyFromPassword([]byte(ks), saltByte)
 						text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
-						plaintext = append(plaintext, text)
 						if err == nil {
 							break
 						}
+
+						plaintext = append(plaintext, text)
+						bs64key := base64.StdEncoding.EncodeToString([]byte(ks))
+						passwords = append(passwords, bs64key)
 					}
 				}
 				
@@ -159,6 +165,7 @@ var jsonCmd = &cobra.Command{
 						pbkdf2 = misc.KeyFromPassword([]byte(pswd), saltByte)
 						text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
 						plaintext = append(plaintext, text)
+						passwords = append(passwords, pswd)
 						if err == nil {
 							break
 						}
@@ -198,7 +205,7 @@ var jsonCmd = &cobra.Command{
 
 		writer := csv.NewWriter(csv_file)
 		if fileInfo.Size() == 0 {
-			crecord := []string{"Mnemonic", "HDPath"}
+			crecord := []string{"Password", "Address", "Mnemonic", "PrivateKey", "HDPath"}
 			wterr := writer.Write(crecord)
 			if wterr != nil {
 				red.Printf("[ERROR]: %s", wterr)
@@ -206,7 +213,7 @@ var jsonCmd = &cobra.Command{
 			}
 		}
 
-		for _, each := range plaintext {
+		for i, each := range plaintext {
 			json.Unmarshal(each, &vault)
 			asoc, err := misc.FromMnemonic(string(vault[0].Data.Mnemonic))
 			if err != nil {
@@ -214,7 +221,7 @@ var jsonCmd = &cobra.Command{
 				os.Exit(1)
 			}
 
-			record := []string{asoc[0], string(vault[0].Data.Mnemonic), asoc[1], vault[0].Data.HDPath}
+			record := []string{passwords[i], asoc[0], string(vault[0].Data.Mnemonic), asoc[1], vault[0].Data.HDPath}
 			wterr := writer.Write(record)
 			if wterr != nil {
 				red.Printf("[ERROR]: %s", wterr)
