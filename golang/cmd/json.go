@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/SantiiRepair/vault-decryptor/decryptor"
 	"github.com/SantiiRepair/vault-decryptor/misc"
@@ -81,7 +82,12 @@ var jsonCmd = &cobra.Command{
 				os.Exit(1)
 			}
 
-			for i := 0; i <= len(files); i++ {
+			if len(files) <= 1 {
+				red("[ERROR]: Found 1 file, expected more than 1.")
+				os.Exit(1)
+			}
+
+			for i := 0; i < len(files); i++ {
 				content, err := os.ReadFile(files[i])
 				if err != nil {
 					red("[ERROR]: ", err)
@@ -95,30 +101,44 @@ var jsonCmd = &cobra.Command{
 				dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
 
 				if k != "" {
-					ks, err := os.ReadFile(k)
+					kss, err := os.ReadFile(k)
+					lines := strings.Split(string(kss), "\n")
 					if err != nil {
 						red("[ERROR]: ", err)
 						os.Exit(1)
 					}
-					for ik := 0; ik <= len(ks); ik++ {
-						key = misc.KeyFromPassword([]byte{ks[ik]}, saltByte)
+
+					if len(kss) <= 1 {
+						red("[ERROR]: Found %d files, expected more than 1 key.", len(files))
+						os.Exit(1)
+					}
+
+					for _, ks := range lines {
+						key = misc.KeyFromPassword([]byte(ks), saltByte)
 						plaintext, err = decryptor.WithKey(key, dataByte, ivByte)
-						if err != nil {
-							continue
+						if err == nil {
+							break
 						}
 					}
 				}
 				if password != "" {
 					pswds, err := os.ReadFile(password)
+					lines := strings.Split(string(pswds), "\n")
 					if err != nil {
 						red("[ERROR]: ", err)
 						os.Exit(1)
 					}
-					for ip := 0; ip <= len(pswds); ip++ {
-						key = misc.KeyFromPassword([]byte{pswds[ip]}, saltByte)
+
+					if len(pswds) <= 1 {
+						red("[ERROR]: Found %d files, expected more than 1 password.", len(files))
+						os.Exit(1)
+					}
+
+					for _, pswd := range lines {
+						key = misc.KeyFromPassword([]byte(pswd), saltByte)
 						plaintext, err = decryptor.WithKey(key, dataByte, ivByte)
-						if err != nil {
-							continue
+						if err == nil {
+							break
 						}
 					}
 				}
@@ -171,6 +191,7 @@ var jsonCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(jsonCmd)
 	jsonCmd.Flags().StringP("key", "k", "", "PBKDF2 derived key if you have any")
+	jsonCmd.Flags().StringP("output", "o", "", "Path to where you wanna that be saved CSV file")
 	jsonCmd.Flags().StringP("path", "p", "", "Path to log or vault, folder or file")
 	jsonCmd.Flags().StringP("password", "w", "", "Password of your Metamask wallet")
 	jsonCmd.Flags().StringP("recursive", "r", "", "Iterate over all files in the specified path")
