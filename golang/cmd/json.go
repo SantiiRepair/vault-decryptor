@@ -62,7 +62,13 @@ var jsonCmd = &cobra.Command{
 				os.Exit(1)
 			}
 
-			json.Unmarshal(content, &payload)
+			values, err := misc.GetValuesFromJSON(content)
+			if err != nil {
+				red.Printf("[ERROR]: %s", err)
+				os.Exit(1)
+			}
+
+			json.Unmarshal(values, &payload)
 
 			ivByte, _ := base64.StdEncoding.DecodeString(payload.Iv)
 			saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
@@ -101,7 +107,13 @@ var jsonCmd = &cobra.Command{
 					os.Exit(1)
 				}
 
-				json.Unmarshal(content, &payload)
+				values, err := misc.GetValuesFromJSON(content)
+				if err != nil {
+					red.Printf("[ERROR]: %s", err)
+					os.Exit(1)
+				}
+
+				json.Unmarshal(values, &payload)
 
 				ivByte, _ := base64.StdEncoding.DecodeString(payload.Iv)
 				saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
@@ -129,6 +141,7 @@ var jsonCmd = &cobra.Command{
 						}
 					}
 				}
+				
 				if password != "" {
 					pswds, err := os.ReadFile(password)
 					lines := strings.Split(string(pswds), "\n")

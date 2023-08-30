@@ -2,21 +2,31 @@ package misc
 
 import "encoding/json"
 
-func getDataFromJSON(jsonData string) (map[string]interface{}, error) {
+func GetValuesFromJSON(jsonByte []byte) ([]byte, error) {
 	var payload map[string]interface{}
-	err := json.Unmarshal([]byte(jsonData), &payload)
+	err := json.Unmarshal(jsonByte, &payload)
 	if err != nil {
 		return nil, err
 	}
 
 	if keyringController, ok := payload["KeyringController"].(map[string]interface{}); ok {
 		if vault, ok := keyringController["vault"].(map[string]interface{}); ok {
-			return vault, nil
+			jsd, err := json.Marshal(vault)
+			if err != nil {
+				return nil, err
+			}
+
+			return jsd, nil
 		}
 	}
 
 	if vault, ok := payload["vault"].(map[string]interface{}); ok {
-		return vault, nil
+		jsd, err := json.Marshal(vault)
+		if err != nil {
+			return nil, err
+		}
+
+		return jsd, nil
 	}
 
 	data := make(map[string]interface{})
@@ -24,5 +34,10 @@ func getDataFromJSON(jsonData string) (map[string]interface{}, error) {
 	data["salt"] = payload["salt"]
 	data["iv"] = payload["iv"]
 
-	return data, nil
+	jsd, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return jsd, nil
 }
