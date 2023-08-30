@@ -78,7 +78,8 @@ var jsonCmd = &cobra.Command{
 
 		glob, err := misc.PathInfo(path, strings.ToLower(filepath.Ext(path)))
 		if err != nil {
-			red(err)
+			red("[ERROR]: ", err)
+			os.Exit(1)
 		}
 
 		for _, file := range glob {
@@ -109,25 +110,36 @@ var jsonCmd = &cobra.Command{
 
 		csv_path := fmt.Sprintf("%s/csv/metamask.csv", this)
 		mkerr := os.Mkdir(fmt.Sprintf("%s/csv", this), 0755)
-		if os.IsExist(mkerr) {}
 		if !os.IsExist(mkerr) {
 			red("[ERROR]: ", mkerr)
 			os.Exit(1)
 		}
 
 		csv_file, err := os.OpenFile(csv_path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-		if os.IsNotExist(err) {
-			_, crterr := os.Create(csv_path)
-			if crterr != nil {
-				red("[ERROR]: ", crterr)
+		if err != nil {
+			red("[ERROR]: ", err)
+			os.Exit(1)
+		}
+
+		defer csv_file.Close()
+		fileInfo, err := os.Stat(csv_path)
+		if err != nil {
+			red("[ERROR]: ", err)
+			os.Exit(1)
+		}
+
+		json.Unmarshal(plaintext, &vault)
+		record := []string{string(vault[0].Data.Mnemonic), vault[0].Data.HDPath}
+		writer := csv.NewWriter(csv_file)
+		if fileInfo.Size() == 0 {
+			crecord := []string{"Mnemonic", "HDPath"}
+			wterr := writer.Write(crecord)
+			if wterr != nil {
+				red("[ERROR]: ", wterr)
 				os.Exit(1)
 			}
 		}
 
-		defer csv_file.Close()
-		json.Unmarshal(plaintext, &vault)
-		record := []string{string(vault[0].Data.Mnemonic), vault[0].Data.HDPath}
-		writer := csv.NewWriter(csv_file)
 		wterr := writer.Write(record)
 		if wterr != nil {
 			red("[ERROR]: ", wterr)
