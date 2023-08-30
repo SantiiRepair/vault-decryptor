@@ -75,14 +75,14 @@ var jsonCmd = &cobra.Command{
 		}
 
 		if recursive == "yes" {
-			glob, err := misc.PathInfo(path, "json")
+			files, err := misc.PathInfo(path, ".json")
 			if err != nil {
 				red("[ERROR]: ", err)
 				os.Exit(1)
 			}
 
-			for _, file := range glob {
-				content, err := os.ReadFile(file)
+			for i := 0; i <= len(files); i++ {
+				content, err := os.ReadFile(files[i])
 				if err != nil {
 					red("[ERROR]: ", err)
 					os.Exit(1)
@@ -95,13 +95,13 @@ var jsonCmd = &cobra.Command{
 				dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
 
 				if k != "" {
-					psw_file, err := os.ReadFile(k)
+					ks, err := os.ReadFile(k)
 					if err != nil {
 						red("[ERROR]: ", err)
 						os.Exit(1)
 					}
-					for _, keyByte := range psw_file {
-						key = misc.KeyFromPassword([]byte{keyByte}, saltByte)
+					for ik := 0; ik <= len(ks); ik++ {
+						key = misc.KeyFromPassword([]byte{ks[ik]}, saltByte)
 						plaintext, err = decryptor.WithKey(key, dataByte, ivByte)
 						if err != nil {
 							continue
@@ -109,13 +109,13 @@ var jsonCmd = &cobra.Command{
 					}
 				}
 				if password != "" {
-					psw_file, err := os.ReadFile(password)
+					pswds, err := os.ReadFile(password)
 					if err != nil {
 						red("[ERROR]: ", err)
 						os.Exit(1)
 					}
-					for _, passByte := range psw_file {
-						key = misc.KeyFromPassword([]byte{passByte}, saltByte)
+					for ip := 0; ip <= len(pswds); ip++ {
+						key = misc.KeyFromPassword([]byte{pswds[ip]}, saltByte)
 						plaintext, err = decryptor.WithKey(key, dataByte, ivByte)
 						if err != nil {
 							continue

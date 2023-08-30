@@ -17,8 +17,8 @@ func PathInfo(path string, extension string) ([]string, error) {
 		if !info.IsDir() {
 			fileExt := strings.ToLower(filepath.Ext(filePath))
 			if fileExt == extension {
-					files = append(files, filePath)
-				
+				files = append(files, filePath)
+
 			}
 		}
 
