@@ -4,7 +4,7 @@ import argparse
 from termcolor import colored
 from vault_decryptor.modes.vault import vault
 
-# used to hide asyncio annoying warning
+# used to hide annoying warning
 shutup.please()
 
 
