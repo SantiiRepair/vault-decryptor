@@ -9,8 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/SantiiRepair/vault-decryptor/decryptor"
 	"github.com/SantiiRepair/vault-decryptor/misc"
@@ -76,36 +74,55 @@ var jsonCmd = &cobra.Command{
 			}
 		}
 
-		glob, err := misc.PathInfo(path, strings.ToLower(filepath.Ext(path)))
-		if err != nil {
-			red("[ERROR]: ", err)
-			os.Exit(1)
-		}
-
-		for _, file := range glob {
-			content, err := os.ReadFile(file)
+		if recursive == "yes" {
+			glob, err := misc.PathInfo(path, "json")
 			if err != nil {
 				red("[ERROR]: ", err)
 				os.Exit(1)
 			}
 
-			json.Unmarshal(content, &payload)
+			for _, file := range glob {
+				content, err := os.ReadFile(file)
+				if err != nil {
+					red("[ERROR]: ", err)
+					os.Exit(1)
+				}
 
-			ivByte, _ := base64.StdEncoding.DecodeString(payload.Iv)
-			saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
-			dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
-			if k != "" {
-				key = []byte(k)
-			}
-			if password != "" {
-				key = misc.KeyFromPassword([]byte(password), saltByte)
-			}
-			plaintext, err = decryptor.WithKey(key, dataByte, ivByte)
-			if err != nil {
-				red("[ERROR]: Incorrect Password. Maybe you'd forget '--key' or '--password' argument.")
-				os.Exit(1)
-			}
+				json.Unmarshal(content, &payload)
 
+				ivByte, _ := base64.StdEncoding.DecodeString(payload.Iv)
+				saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
+				dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
+
+				if k != "" {
+					psw_file, err := os.ReadFile(k)
+					if err != nil {
+						red("[ERROR]: ", err)
+						os.Exit(1)
+					}
+					for _, keyByte := range psw_file {
+						key = misc.KeyFromPassword([]byte{keyByte}, saltByte)
+						plaintext, err = decryptor.WithKey(key, dataByte, ivByte)
+						if err != nil {
+							continue
+						}
+					}
+				}
+				if password != "" {
+					psw_file, err := os.ReadFile(password)
+					if err != nil {
+						red("[ERROR]: ", err)
+						os.Exit(1)
+					}
+					for _, passByte := range psw_file {
+						key = misc.KeyFromPassword([]byte{passByte}, saltByte)
+						plaintext, err = decryptor.WithKey(key, dataByte, ivByte)
+						if err != nil {
+							continue
+						}
+					}
+				}
+			}
 		}
 
 		csv_path := fmt.Sprintf("%s/csv/metamask.csv", this)

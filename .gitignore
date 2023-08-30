@@ -1,7 +1,10 @@
 csv
 dist
 logs
+psws
 build
+cmdexp
+vaults
 __pycache__
 vault_decryptor.egg-info
 
