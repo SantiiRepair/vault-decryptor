@@ -21,7 +21,7 @@ var jsonCmd = &cobra.Command{
 	Use:   "json",
 	Short: "Sub-module that rescue seed phrase from json vault.",
 	Run: func(cmd *cobra.Command, args []string) {
-		var key []byte
+		var pbkdf2 []byte
 		var vault []Vault
 		var payload Payload
 		var plaintext [][]byte
@@ -36,7 +36,7 @@ var jsonCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		k := cmd.Flag("key").Value.String()
+		key := cmd.Flag("key").Value.String()
 		password := cmd.Flag("password").Value.String()
 		path := cmd.Flag("path").Value.String()
 		output := cmd.Flag("output").Value.String()
@@ -74,13 +74,13 @@ var jsonCmd = &cobra.Command{
 			saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
 			dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
 
-			if k != "" {
-				key = []byte(k)
+			if key != "" {
+				pbkdf2 = []byte(key)
 			}
 			if password != "" {
-				key = misc.KeyFromPassword([]byte(password), saltByte)
+				pbkdf2 = misc.KeyFromPassword([]byte(password), saltByte)
 			}
-			text, err := decryptor.WithKey(key, dataByte, ivByte)
+			text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
 			plaintext = append(plaintext, text)
 			if err != nil {
 				red.Println("[ERROR]: Incorrect Password. Maybe you'd forget '--key' or '--password' argument.")
@@ -119,8 +119,8 @@ var jsonCmd = &cobra.Command{
 				saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
 				dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
 
-				if k != "" {
-					kss, err := os.ReadFile(k)
+				if key != "" {
+					kss, err := os.ReadFile(key)
 					lines := strings.Split(string(kss), "\n")
 					if err != nil {
 						red.Printf("[ERROR]: %s", err)
@@ -133,8 +133,8 @@ var jsonCmd = &cobra.Command{
 					}
 
 					for _, ks := range lines {
-						key = misc.KeyFromPassword([]byte(ks), saltByte)
-						text, err := decryptor.WithKey(key, dataByte, ivByte)
+						pbkdf2 = misc.KeyFromPassword([]byte(ks), saltByte)
+						text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
 						plaintext = append(plaintext, text)
 						if err == nil {
 							break
@@ -156,8 +156,8 @@ var jsonCmd = &cobra.Command{
 					}
 
 					for _, pswd := range lines {
-						key = misc.KeyFromPassword([]byte(pswd), saltByte)
-						text, err := decryptor.WithKey(key, dataByte, ivByte)
+						pbkdf2 = misc.KeyFromPassword([]byte(pswd), saltByte)
+						text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
 						plaintext = append(plaintext, text)
 						if err == nil {
 							break
@@ -208,7 +208,13 @@ var jsonCmd = &cobra.Command{
 
 		for _, each := range plaintext {
 			json.Unmarshal(each, &vault)
-			record := []string{string(vault[0].Data.Mnemonic), vault[0].Data.HDPath}
+			asoc, err := misc.FromMnemonic(string(vault[0].Data.Mnemonic))
+			if err != nil {
+				red.Printf("[ERROR]: %s", err)
+				os.Exit(1)
+			}
+
+			record := []string{asoc[0], string(vault[0].Data.Mnemonic), asoc[1], vault[0].Data.HDPath}
 			wterr := writer.Write(record)
 			if wterr != nil {
 				red.Printf("[ERROR]: %s", wterr)
