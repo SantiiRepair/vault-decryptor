@@ -49,9 +49,9 @@ func ExtractVaultFromFile(data string) interface{} {
 	ivRegex := regexp.MustCompile(`\\"iv.{1,4}[^A-Za-z0-9+\/]{1,10}([A-Za-z0-9+\/]{10,40}=*)`)
 	dataRegex := regexp.MustCompile(`\\"[^":,is]*\\":\\"([A-Za-z0-9+\/]*=*)`)
 	saltRegex := regexp.MustCompile(`,\\"salt.{1,4}[^A-Za-z0-9+\/]{1,10}([A-Za-z0-9+\/]{10,100}=*)`)
-	matches = matchRegex.FindAllStringSubmatch(data, -1)
+	matcher := matchRegex.FindAllStringSubmatch(data, -1)
 	var vaults []interface{}
-	for _, m := range matches {
+	for _, m := range matcher {
 		captures := captureRegex.FindStringSubmatch(m[0])
 		if len(captures) > 1 {
 			dataMatch := dataRegex.FindStringSubmatch(captures[1])
