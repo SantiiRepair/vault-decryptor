@@ -24,7 +24,7 @@ var jsonCmd = &cobra.Command{
 		var key []byte
 		var vault []Vault
 		var payload Payload
-		var plaintext []byte
+		var plaintext [][]byte
 		var output_csv string
 
 		red := color.New(color.FgRed)
@@ -74,7 +74,8 @@ var jsonCmd = &cobra.Command{
 			if password != "" {
 				key = misc.KeyFromPassword([]byte(password), saltByte)
 			}
-			plaintext, err = decryptor.WithKey(key, dataByte, ivByte)
+			text, err := decryptor.WithKey(key, dataByte, ivByte)
+			plaintext = append(plaintext, text)
 			if err != nil {
 				red.Println("[ERROR]: Incorrect Password. Maybe you'd forget '--key' or '--password' argument.")
 				os.Exit(1)
@@ -121,7 +122,8 @@ var jsonCmd = &cobra.Command{
 
 					for _, ks := range lines {
 						key = misc.KeyFromPassword([]byte(ks), saltByte)
-						plaintext, err = decryptor.WithKey(key, dataByte, ivByte)
+						text, err := decryptor.WithKey(key, dataByte, ivByte)
+						plaintext = append(plaintext, text)
 						if err == nil {
 							break
 						}
@@ -142,7 +144,8 @@ var jsonCmd = &cobra.Command{
 
 					for _, pswd := range lines {
 						key = misc.KeyFromPassword([]byte(pswd), saltByte)
-						plaintext, err = decryptor.WithKey(key, dataByte, ivByte)
+						text, err := decryptor.WithKey(key, dataByte, ivByte)
+						plaintext = append(plaintext, text)
 						if err == nil {
 							break
 						}
@@ -175,8 +178,6 @@ var jsonCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		json.Unmarshal(plaintext, &vault)
-		record := []string{string(vault[0].Data.Mnemonic), vault[0].Data.HDPath}
 		writer := csv.NewWriter(csv_file)
 		if fileInfo.Size() == 0 {
 			crecord := []string{"Mnemonic", "HDPath"}
@@ -187,13 +188,18 @@ var jsonCmd = &cobra.Command{
 			}
 		}
 
-		wterr := writer.Write(record)
-		if wterr != nil {
-			red.Printf("[ERROR]: %s", wterr)
-			os.Exit(1)
+		for _, each := range plaintext {
+			json.Unmarshal(each, &vault)
+			record := []string{string(vault[0].Data.Mnemonic), vault[0].Data.HDPath}
+			wterr := writer.Write(record)
+			if wterr != nil {
+				red.Printf("[ERROR]: %s", wterr)
+				os.Exit(1)
+			}
+
+			writer.Flush()
 		}
 
-		writer.Flush()
 		green.Println("[INFO]: Successfuly saved CSV with new values!")
 	},
 }
