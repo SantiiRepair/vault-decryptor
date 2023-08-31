@@ -147,7 +147,7 @@ var jsonCmd = &cobra.Command{
 						passwords = append(passwords, bs64key)
 					}
 				}
-				
+
 				if password != "" {
 					pswds, err := os.ReadFile(password)
 					lines := strings.Split(string(pswds), "\n")
@@ -242,5 +242,5 @@ func init() {
 	jsonCmd.Flags().StringP("path", "p", "", "Path to log or vault, folder or file")
 	jsonCmd.Flags().StringP("password", "w", "", "Password of your Metamask wallet")
 	jsonCmd.Flags().StringP("recursive", "r", "", "Iterate over all files in the specified path")
-	jsonCmd.PersistentFlags().String("json", "", "Usage: vault-decryptor json [--r] [--pass] [--path]")
+	jsonCmd.PersistentFlags().String("json", "", "Usage: vault-decryptor json [-r] [-w] [-p] [-o]")
 }

@@ -37,12 +37,17 @@ var fileCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		ext := cmd.Flag("ext").Value.String()
 		key := cmd.Flag("key").Value.String()
 		password := cmd.Flag("password").Value.String()
 		path := cmd.Flag("path").Value.String()
 		output := cmd.Flag("output").Value.String()
 		recursive := cmd.Flag("recursive").Value.String()
 
+		if ext == "" {
+			red.Println("[ERROR]: Missing argument '--ext' in list.")
+			os.Exit(1)
+		}
 		if recursive == "" {
 			red.Println("[ERROR]: Missing argument '--recursive' in list.")
 			os.Exit(1)
@@ -63,11 +68,7 @@ var fileCmd = &cobra.Command{
 				os.Exit(1)
 			}
 
-			values, err := misc.GetValuesFromJSON(content)
-			if err != nil {
-				red.Printf("[ERROR]: %s", err)
-				os.Exit(1)
-			}
+			values := misc.ExtractVaultFromFile(string(content))
 
 			json.Unmarshal(values, &payload)
 
@@ -92,7 +93,7 @@ var fileCmd = &cobra.Command{
 		}
 
 		if recursive == "yes" {
-			files, err := misc.PathInfo(path, ".log")
+			files, err := misc.PathInfo(path, fmt.Sprintf(".%s", ext))
 			if err != nil {
 				red.Printf("[ERROR]: %s", err)
 				os.Exit(1)
@@ -111,6 +112,7 @@ var fileCmd = &cobra.Command{
 				}
 
 				values := misc.ExtractVaultFromFile(string(content))
+
 				json.Unmarshal(values, &payload)
 
 				ivByte, _ := base64.StdEncoding.DecodeString(payload.Iv)
@@ -142,7 +144,7 @@ var fileCmd = &cobra.Command{
 						passwords = append(passwords, bs64key)
 					}
 				}
-				
+
 				if password != "" {
 					pswds, err := os.ReadFile(password)
 					lines := strings.Split(string(pswds), "\n")
@@ -232,10 +234,11 @@ var fileCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(fileCmd)
+	fileCmd.Flags().StringP("ext", "e", "", "File extension (ldb, log) of vault")
 	fileCmd.Flags().StringP("key", "k", "", "PBKDF2 derived key if you have any")
 	fileCmd.Flags().StringP("output", "o", "", "Path to where you wanna that be saved CSV file")
 	fileCmd.Flags().StringP("path", "p", "", "Path to log or vault, folder or file")
 	fileCmd.Flags().StringP("password", "w", "", "Password of your Metamask wallet")
 	fileCmd.Flags().StringP("recursive", "r", "", "Iterate over all files in the specified path")
-	fileCmd.PersistentFlags().String("file", "", "Usage: vault-decryptor file [--r] [--pass] [--path]")
+	fileCmd.PersistentFlags().String("file", "", "Usage: vault-decryptor file [-r] [-w] [-p] [-o] [-e]")
 }

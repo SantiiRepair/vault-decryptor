@@ -2,8 +2,10 @@ package misc
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	color "github.com/fatih/color"
 )
@@ -16,7 +18,8 @@ func ExtractVaultFromFile(data string) []byte {
 	// Attempt 1: raw JSON
 	err := json.Unmarshal([]byte(data), &vaultBody)
 	if err == nil {
-		vaultB, err := json.Marshal(vaultBody)
+		formated := strings.Trim(strings.ReplaceAll(vaultBody, "\\", ""), "\"")
+		vaultB, err := json.Marshal(formated)
 		if err != nil {
 			red.Printf("[ERROR]: %s", err)
 			os.Exit(1)
@@ -40,12 +43,14 @@ func ExtractVaultFromFile(data string) []byte {
 			},
 		}
 
-		vaultB, err := json.Marshal(vaultM)
+		str := fmt.Sprint(vaultM)
+		formated := strings.Trim(strings.ReplaceAll(str, "\\", ""), "\"")
+		vaultB, err := json.Marshal(formated)
 		if err != nil {
 			red.Printf("[ERROR]: %s", err)
 			os.Exit(1)
 		}
-		
+
 		return vaultB
 	}
 
@@ -54,7 +59,8 @@ func ExtractVaultFromFile(data string) []byte {
 	if len(matches) > 0 {
 		vaultBody = matches[0][29:]
 		var vault interface{}
-		json.Unmarshal([]byte(vaultBody), &vault)
+		formated := strings.Trim(strings.ReplaceAll(vaultBody, "\\", ""), "\"")
+		json.Unmarshal([]byte(formated), &vault)
 		vaultB, err := json.Marshal(vault)
 		if err != nil {
 			red.Printf("[ERROR]: %s", err)
@@ -95,7 +101,9 @@ func ExtractVaultFromFile(data string) []byte {
 		yellow.Println("[WARNING]: Found multiple vaults!", vaults)
 	}
 
-	vaultB, err := json.Marshal(vaults[0])
+	str := fmt.Sprint(vaults[0])
+	formated := strings.Trim(strings.ReplaceAll(str, "\\", ""), "\"")
+	vaultB, err := json.Marshal(formated)
 	if err != nil {
 		red.Printf("[ERROR]: %s", err)
 		os.Exit(1)
