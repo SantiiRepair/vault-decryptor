@@ -2,19 +2,26 @@ package misc
 
 import (
 	"encoding/json"
+	"os"
 	"regexp"
 
 	color "github.com/fatih/color"
 )
 
-func ExtractVaultFromFile(data string) interface{} {
+func ExtractVaultFromFile(data string) []byte {
+	red := color.New(color.FgRed)
 	yellow := color.New(color.FgYellow)
 	var vaultBody string
 
 	// Attempt 1: raw JSON
 	err := json.Unmarshal([]byte(data), &vaultBody)
 	if err == nil {
-		return vaultBody
+		vaultB, err := json.Marshal(vaultBody)
+		if err != nil {
+			red.Printf("[ERROR]: %s", err)
+			os.Exit(1)
+		}
+		return vaultB
 	}
 
 	// Attempt 2: pre-v3 cleartext
@@ -26,12 +33,20 @@ func ExtractVaultFromFile(data string) interface{} {
 		if len(vaultMatches) > 0 {
 			json.Unmarshal([]byte(vaultMatches[1]), &vault)
 		}
-		return map[string]interface{}{
+		vaultM := map[string]interface{}{
 			"data": map[string]interface{}{
 				"mnemonic": mnemonic,
 				"vault":    vault,
 			},
 		}
+
+		vaultB, err := json.Marshal(vaultM)
+		if err != nil {
+			red.Printf("[ERROR]: %s", err)
+			os.Exit(1)
+		}
+		
+		return vaultB
 	}
 
 	// Attempt 3: chromium 000003.log file on Linux
@@ -40,7 +55,13 @@ func ExtractVaultFromFile(data string) interface{} {
 		vaultBody = matches[0][29:]
 		var vault interface{}
 		json.Unmarshal([]byte(vaultBody), &vault)
-		return vault
+		vaultB, err := json.Marshal(vault)
+		if err != nil {
+			red.Printf("[ERROR]: %s", err)
+			os.Exit(1)
+		}
+
+		return vaultB
 	}
 
 	// Attempt 4: chromium 000005.ldb on Windows
@@ -73,5 +94,12 @@ func ExtractVaultFromFile(data string) interface{} {
 	if len(vaults) > 1 {
 		yellow.Println("[WARNING]: Found multiple vaults!", vaults)
 	}
-	return vaults[0]
+
+	vaultB, err := json.Marshal(vaults[0])
+	if err != nil {
+		red.Printf("[ERROR]: %s", err)
+		os.Exit(1)
+	}
+
+	return vaultB
 }

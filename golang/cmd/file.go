@@ -17,9 +17,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var logCmd = &cobra.Command{
-	Use:   "json",
-	Short: "Sub-module that rescue seed phrase from json vault.",
+var fileCmd = &cobra.Command{
+	Use:   "file",
+	Short: "Sub-module that rescue seed phrase from file (.ldb, .log) vault.",
 	Run: func(cmd *cobra.Command, args []string) {
 		var pbkdf2 []byte
 		var vault []Vault
@@ -92,7 +92,7 @@ var logCmd = &cobra.Command{
 		}
 
 		if recursive == "yes" {
-			files, err := misc.PathInfo(path, ".json")
+			files, err := misc.PathInfo(path, ".log")
 			if err != nil {
 				red.Printf("[ERROR]: %s", err)
 				os.Exit(1)
@@ -110,12 +110,7 @@ var logCmd = &cobra.Command{
 					os.Exit(1)
 				}
 
-				values, err := misc.GetValuesFromJSON(content)
-				if err != nil {
-					red.Printf("[ERROR]: %s", err)
-					os.Exit(1)
-				}
-
+				values := misc.ExtractVaultFromFile(string(content))
 				json.Unmarshal(values, &payload)
 
 				ivByte, _ := base64.StdEncoding.DecodeString(payload.Iv)
@@ -236,11 +231,11 @@ var logCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(logCmd)
-	logCmd.Flags().StringP("key", "k", "", "PBKDF2 derived key if you have any")
-	logCmd.Flags().StringP("output", "o", "", "Path to where you wanna that be saved CSV file")
-	logCmd.Flags().StringP("path", "p", "", "Path to log or vault, folder or file")
-	logCmd.Flags().StringP("password", "w", "", "Password of your Metamask wallet")
-	logCmd.Flags().StringP("recursive", "r", "", "Iterate over all files in the specified path")
-	logCmd.PersistentFlags().String("log", "", "Usage: vault-decryptor log [--r] [--pass] [--path]")
+	rootCmd.AddCommand(fileCmd)
+	fileCmd.Flags().StringP("key", "k", "", "PBKDF2 derived key if you have any")
+	fileCmd.Flags().StringP("output", "o", "", "Path to where you wanna that be saved CSV file")
+	fileCmd.Flags().StringP("path", "p", "", "Path to log or vault, folder or file")
+	fileCmd.Flags().StringP("password", "w", "", "Password of your Metamask wallet")
+	fileCmd.Flags().StringP("recursive", "r", "", "Iterate over all files in the specified path")
+	fileCmd.PersistentFlags().String("file", "", "Usage: vault-decryptor file [--r] [--pass] [--path]")
 }
