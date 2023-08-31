@@ -7,9 +7,9 @@ cmdexp
 vaults
 __pycache__
 output.csv
+utils.go
 vault_decryptor.egg-info
 
 .venv
 .gitpod.yml
 .vault.json
-54676.json
