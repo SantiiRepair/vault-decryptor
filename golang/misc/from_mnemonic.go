@@ -1,33 +1,24 @@
 package misc
 
 import (
-	"crypto/ecdsa"
-	"github.com/btcsuite/btcd/btcutil/hdkeychain"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/crypto"
 	color "github.com/fatih/color"
-	bip39 "github.com/tyler-smith/go-bip39"
+	"github.com/miguelmota/go-ethereum-hdwallet"
 	"os"
 )
 
-func FromMnemonic(mnemonic string) ([]string, error) {
+func FromMnemonic(mnemonic string, hdpath string) ([]string, error) {
 	red := color.New(color.FgRed)
-	seed := bip39.NewSeed(mnemonic, "")
-	masterKey, err := hdkeychain.NewMaster(seed, &chaincfg.MainNetParams)
+	wallet, err := hdwallet.NewFromMnemonic(mnemonic)
 	if err != nil {
-		return nil, err
+		red.Sprintf("[ERROR]: ", err)
 	}
 
-	privateKey, err := masterKey.ECPrivKey()
-	privateKeyECDSA := privateKey.ToECDSA()
-	publicKey := privateKeyECDSA.Public()
-	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
-	if !ok {
-		red.Println("[ERROR]: Could not convert the public key type.")
-		os.Exit(1)
+	path := hdwallet.MustParseDerivationPath(hdpath)
+	account, err := wallet.Derive(path, false)
+	if err != nil {
+		red.Sprintf("[ERROR]: ", err)
 	}
 
-	address, ethPrivateKey := crypto.PubkeyToAddress(*publicKeyECDSA).String(), hexutil.Encode(crypto.FromECDSA(privateKeyECDSA))[2:]
+	address, ethPrivateKey := account.Address.Hex()
 	return []string{address, ethPrivateKey}, nil
 }
