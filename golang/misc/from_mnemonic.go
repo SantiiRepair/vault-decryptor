@@ -11,12 +11,14 @@ func FromMnemonic(mnemonic string, hdpath string) ([]string, error) {
 	wallet, err := hdwallet.NewFromMnemonic(mnemonic)
 	if err != nil {
 		red.Sprintf("[ERROR]: ", err)
+		os.Exit(1)
 	}
 
 	path := hdwallet.MustParseDerivationPath(hdpath)
 	account, err := wallet.Derive(path, false)
 	if err != nil {
 		red.Sprintf("[ERROR]: ", err)
+		os.Exit(1)
 	}
 
 	address, ethPrivateKey := account.Address.Hex()

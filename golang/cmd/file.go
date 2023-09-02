@@ -176,10 +176,10 @@ var fileCmd = &cobra.Command{
 			}
 		}
 
-		if strings.Contains(output, "/") {
-			output_csv = fmt.Sprintf("%s/output.csv", output)
-		} else if !strings.Contains(output, "/") {
+		if output == "." {
 			output_csv = fmt.Sprintf("%s/output.csv", this)
+		} else if output != "." {
+			output_csv = fmt.Sprintf("%s/output.csv", output)
 		}
 		mkerr := os.Mkdir(output, 0755)
 		if !os.IsExist(mkerr) {
@@ -212,7 +212,7 @@ var fileCmd = &cobra.Command{
 
 		for i, each := range plaintext {
 			json.Unmarshal(each, &vault)
-			asoc, err := misc.FromMnemonic(string(vault[0].Data.Mnemonic))
+			asoc, err := misc.FromMnemonic(string(vault[0].Data.Mnemonic), vault[0].Data.HDPath)
 			if err != nil {
 				red.Printf("[ERROR]: %s", err)
 				os.Exit(1)
