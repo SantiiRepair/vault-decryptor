@@ -132,7 +132,6 @@ var fileCmd = &cobra.Command{
 					text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
 					if text != nil && err == nil {
 						plaintext = append(plaintext, text)
-						fmt.Println(plaintext)
 						passwords = append(passwords, pswd)
 						break
 					}
