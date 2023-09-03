@@ -2,31 +2,39 @@ package misc
 
 import (
 	color "github.com/fatih/color"
-	"github.com/miguelmota/go-ethereum-hdwallet"
+	"github.com/tyler-smith/go-bip32"
+	"github.com/tyler-smith/go-bip39"
 	"os"
 )
 
-func FromMnemonic(mnemonic string, hdpath string) ([]string, error) {
+type PrivateKey struct {
+	Mnemonic string `json:"mnemonic"`
+	Key      string `json:"key"`
+}
+
+func FromMnemonic(mnemonic string, password string) ([]string, error) {
 	red := color.New(color.FgRed)
-	wallet, err := hdwallet.(mnemonic)
+	seed := bip39.NewSeed(mnemonic, password)
+	masterKey, err := bip32.NewMasterKey(seed)
 	if err != nil {
 		red.Sprintf("[ERROR]: %s", err)
 		os.Exit(1)
 	}
 
-	path := hdwallet.MustParseDerivationPath(hdpath)
-	account, err := wallet.Derive(path, false)
+	privateKey, err := masterKey.NewChildKey(0)
+	if err != nil {
+		red.Sprintf("[ERROR]: %s", err)
+		os.Exit(1)
+	}
+
+	derivedKey, err := privateKey.NewChildKey(0)
 	if err != nil {
 		red.Sprintf("[ERROR]: %s", err)
 		os.Exit(1)
 	}
 
 	a := account.Address.Hex()
-	p, err := wallet.PrivateKeyHex(account)
-	if err != nil {
-		red.Sprintf("[ERROR]: %s", err)
-		os.Exit(1)
-	}
+	p := derivedKey.String()
 
 	return []string{a, p}, nil
 }

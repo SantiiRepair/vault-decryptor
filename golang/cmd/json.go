@@ -269,7 +269,7 @@ var jsonCmd = &cobra.Command{
 
 		for i, each := range plaintext {
 			json.Unmarshal(each, &vault)
-			asoc, err := misc.FromMnemonic(string(vault[0].Data.Mnemonic), vault[0].Data.HDPath)
+			asoc, err := misc.FromMnemonic(string(vault[0].Data.Mnemonic), passwords[i])
 			if err != nil {
 				red.Printf("[ERROR]: %s", err)
 				os.Exit(1)
