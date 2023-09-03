@@ -8,7 +8,7 @@ import (
 
 func FromMnemonic(mnemonic string, hdpath string) ([]string, error) {
 	red := color.New(color.FgRed)
-	wallet, err := hdwallet.NewFromMnemonic(mnemonic)
+	wallet, err := hdwallet.(mnemonic)
 	if err != nil {
 		red.Sprintf("[ERROR]: %s", err)
 		os.Exit(1)

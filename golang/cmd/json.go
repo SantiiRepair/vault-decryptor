@@ -176,11 +176,12 @@ var jsonCmd = &cobra.Command{
 
 				if key != "" {
 					kss, err := os.ReadFile(key)
-					lines := strings.Split(string(kss), "\n")
 					if err != nil {
 						red.Printf("[ERROR]: %s", err)
 						os.Exit(1)
 					}
+
+					lines := strings.Split(string(kss), "\n")
 
 					if len(lines) <= 1 {
 						red.Printf("[ERROR]: Found %d files, then more than 1 key is expected.", len(files))
@@ -202,11 +203,12 @@ var jsonCmd = &cobra.Command{
 
 				if password != "" {
 					pswds, err := os.ReadFile(password)
-					lines := strings.Split(string(pswds), "\n")
 					if err != nil {
 						red.Printf("[ERROR]: %s", err)
 						os.Exit(1)
 					}
+
+					lines := strings.Split(string(pswds), "\n")
 
 					if len(lines) <= 1 {
 						red.Printf("[ERROR]: Found %d files, then more than 1 password is expected.", len(files))
@@ -216,9 +218,9 @@ var jsonCmd = &cobra.Command{
 					for _, pswd := range lines {
 						pbkdf2 = misc.KeyFromPassword([]byte(pswd), saltByte)
 						text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
-						plaintext = append(plaintext, text)
-						passwords = append(passwords, pswd)
-						if err == nil {
+						if text != nil && err == nil {
+							plaintext = append(plaintext, text)
+							passwords = append(passwords, pswd)
 							break
 						}
 					}
@@ -257,7 +259,7 @@ var jsonCmd = &cobra.Command{
 
 		writer := csv.NewWriter(csv_file)
 		if fileInfo.Size() == 0 {
-			crecord := []string{"Password", "Address", "Mnemonic", "PrivateKey", "HDPath"}
+			crecord := []string{"Password", "Address", "Mnemonic", "PrivateKey", "Number Of Accounts"}
 			wterr := writer.Write(crecord)
 			if wterr != nil {
 				red.Printf("[ERROR]: %s", wterr)
@@ -273,7 +275,7 @@ var jsonCmd = &cobra.Command{
 				os.Exit(1)
 			}
 
-			record := []string{passwords[i], asoc[0], string(vault[0].Data.Mnemonic), asoc[1], vault[0].Data.HDPath}
+			record := []string{passwords[i], asoc[0], string(vault[0].Data.Mnemonic), asoc[1], string(vault[0].Data.NumberOfAccounts)}
 			wterr := writer.Write(record)
 			if wterr != nil {
 				red.Printf("[ERROR]: %s", wterr)
