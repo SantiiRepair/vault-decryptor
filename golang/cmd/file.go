@@ -76,20 +76,69 @@ var fileCmd = &cobra.Command{
 			saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
 			dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
 
-			if key != "" {
+			if key != "" && !strings.Contains(key, ".txt") {
 				pbkdf2 = []byte(key)
+				text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
+				if err != nil {
+					red.Println("[ERROR]: Incorrect Password. Maybe you forgot '--key' or '--password' argument.")
+					os.Exit(1)
+				}
+
+				plaintext = append(plaintext, text)
+				passwords = append(passwords, password)
 			}
-			if password != "" {
+			if password != "" && !strings.Contains(password, ".txt") {
 				pbkdf2 = misc.KeyFromPassword([]byte(password), saltByte)
+				text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
+				if err != nil {
+					red.Println("[ERROR]: Incorrect Password. Maybe you forgot '--key' or '--password' argument.")
+					os.Exit(1)
+				}
+
+				plaintext = append(plaintext, text)
+				passwords = append(passwords, password)
 			}
-			text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
-			if err != nil {
-				red.Println("[ERROR]: Incorrect Password. Maybe you'd forget '--key' or '--password' argument.")
+			if strings.Contains(key, ".txt") {
+				fkey, err := os.ReadFile(password)
+				if err != nil {
+					red.Printf("[ERROR]: %s", err)
+					os.Exit(1)
+				}
+
+				lines := strings.Split(string(fkey), "\n")
+
+				for _, pswd := range lines {
+					text, err := decryptor.WithKey([]byte(pswd), dataByte, ivByte)
+					if err != nil {
+						continue
+					}
+
+					plaintext = append(plaintext, text)
+					passwords = append(passwords, password)
+				}
+			} else if strings.Contains(password, ".txt") {
+				fkey, err := os.ReadFile(password)
+				if err != nil {
+					red.Printf("[ERROR]: %s", err)
+					os.Exit(1)
+				}
+
+				lines := strings.Split(string(fkey), "\n")
+
+				for _, pswd := range lines {
+					text, err := decryptor.WithKey([]byte(pswd), dataByte, ivByte)
+					if err != nil {
+						continue
+					}
+
+					plaintext = append(plaintext, text)
+					passwords = append(passwords, password)
+				}
+			}
+			if len(plaintext) == 0 {
+				red.Printf("[ERROR]: No vault %s file could be decrypted.", ext)
 				os.Exit(1)
 			}
-
-			plaintext = append(plaintext, text)
-			passwords = append(passwords, password)
 		}
 
 		if recursive == "yes" {
@@ -100,7 +149,7 @@ var fileCmd = &cobra.Command{
 			}
 
 			if len(files) <= 1 {
-				red.Println("[ERROR]: Found 1 file, expected more than 1.")
+				red.Println("[ERROR]: Found 1 file, more than 1 is expected.")
 				os.Exit(1)
 			}
 

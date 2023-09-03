@@ -75,20 +75,54 @@ var jsonCmd = &cobra.Command{
 			saltByte, _ := base64.StdEncoding.DecodeString(payload.Salt)
 			dataByte, _ := base64.StdEncoding.DecodeString(payload.Data)
 
-			if key != "" {
+			if key != "" && !strings.Contains(key, ".txt") {
 				pbkdf2 = []byte(key)
 			}
-			if password != "" {
+			if password != "" && !strings.Contains(password, ".txt") {
 				pbkdf2 = misc.KeyFromPassword([]byte(password), saltByte)
 			}
-			text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
-			if err != nil {
-				red.Println("[ERROR]: Incorrect Password. Maybe you'd forget '--key' or '--password' argument.")
-				os.Exit(1)
+			if strings.Contains(key, ".txt") {
+				fkey, err := os.ReadFile(password)
+				if err != nil {
+					red.Printf("[ERROR]: %s", err)
+					os.Exit(1)
+				}
+
+				lines := strings.Split(string(fkey), "\n")
+
+				for _, pswd := range lines {
+					text, err := decryptor.WithKey([]byte(pswd), dataByte, ivByte)
+					if err != nil {
+						continue
+					}
+
+					plaintext = append(plaintext, text)
+					passwords = append(passwords, password)
+				}
+			} else if strings.Contains(password, ".txt") {
+				fkey, err := os.ReadFile(password)
+				if err != nil {
+					red.Printf("[ERROR]: %s", err)
+					os.Exit(1)
+				}
+
+				lines := strings.Split(string(fkey), "\n")
+
+				for _, pswd := range lines {
+					text, err := decryptor.WithKey([]byte(pswd), dataByte, ivByte)
+					if err != nil {
+						continue
+					}
+
+					plaintext = append(plaintext, text)
+					passwords = append(passwords, password)
+				}
 			}
 
-			plaintext = append(plaintext, text)
-			passwords = append(passwords, password)
+			if len(plaintext) == 0 {
+				red.Println("[ERROR]: No vault json could be decrypted.")
+				os.Exit(1)
+			}
 		}
 
 		if recursive == "yes" {
@@ -99,7 +133,7 @@ var jsonCmd = &cobra.Command{
 			}
 
 			if len(files) <= 1 {
-				red.Println("[ERROR]: Found 1 file, expected more than 1.")
+				red.Println("[ERROR]: Found 1 file, more than 1 is expected.")
 				os.Exit(1)
 			}
 
