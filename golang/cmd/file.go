@@ -108,13 +108,13 @@ var fileCmd = &cobra.Command{
 				lines := strings.Split(string(fkey), "\n")
 
 				for _, pswd := range lines {
-					text, err := decryptor.WithKey([]byte(pswd), dataByte, ivByte)
-					if err != nil {
-						continue
+					pbkdf2 = misc.KeyFromPassword([]byte(pswd), saltByte)
+					text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
+					if text != nil && err == nil {
+						plaintext = append(plaintext, text)
+						passwords = append(passwords, pswd)
+						break
 					}
-
-					plaintext = append(plaintext, text)
-					passwords = append(passwords, password)
 				}
 			} else if strings.Contains(password, ".txt") {
 				fkey, err := os.ReadFile(password)
@@ -126,13 +126,13 @@ var fileCmd = &cobra.Command{
 				lines := strings.Split(string(fkey), "\n")
 
 				for _, pswd := range lines {
-					text, err := decryptor.WithKey([]byte(pswd), dataByte, ivByte)
-					if err != nil {
-						continue
+					pbkdf2 = misc.KeyFromPassword([]byte(pswd), saltByte)
+					text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
+					if text != nil && err == nil {
+						plaintext = append(plaintext, text)
+						passwords = append(passwords, pswd)
+						break
 					}
-
-					plaintext = append(plaintext, text)
-					passwords = append(passwords, password)
 				}
 			}
 			if len(plaintext) == 0 {
@@ -184,13 +184,12 @@ var fileCmd = &cobra.Command{
 					for _, ks := range lines {
 						pbkdf2 = misc.KeyFromPassword([]byte(ks), saltByte)
 						text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
-						if err == nil {
+						bs64key := base64.StdEncoding.EncodeToString([]byte(ks))
+						if text != nil && err == nil {
+							plaintext = append(plaintext, text)
+							passwords = append(passwords, bs64key)
 							break
 						}
-
-						plaintext = append(plaintext, text)
-						bs64key := base64.StdEncoding.EncodeToString([]byte(ks))
-						passwords = append(passwords, bs64key)
 					}
 				}
 
@@ -210,15 +209,16 @@ var fileCmd = &cobra.Command{
 					for _, pswd := range lines {
 						pbkdf2 = misc.KeyFromPassword([]byte(pswd), saltByte)
 						text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
-						plaintext = append(plaintext, text)
-						passwords = append(passwords, pswd)
-						if err == nil {
+						if text != nil && err == nil {
+							plaintext = append(plaintext, text)
+							passwords = append(passwords, pswd)
 							break
 						}
 					}
 				}
 
 				if len(plaintext) == 0 {
+					fmt.Println(plaintext)
 					red.Printf("[ERROR]: No vault %s file could be decrypted.", ext)
 					os.Exit(1)
 				}
