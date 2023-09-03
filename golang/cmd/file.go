@@ -85,7 +85,8 @@ var fileCmd = &cobra.Command{
 				}
 
 				plaintext = append(plaintext, text)
-				passwords = append(passwords, password)
+				bs64key := base64.StdEncoding.EncodeToString([]byte(key))
+				passwords = append(passwords, bs64key)
 			}
 			if password != "" && !strings.Contains(password, ".txt") {
 				pbkdf2 = misc.KeyFromPassword([]byte(password), saltByte)
@@ -98,8 +99,8 @@ var fileCmd = &cobra.Command{
 				plaintext = append(plaintext, text)
 				passwords = append(passwords, password)
 			}
-			if strings.Contains(key, ".txt") {
-				fkey, err := os.ReadFile(password)
+			if key != "" && strings.Contains(key, ".txt") {
+				fkey, err := os.ReadFile(key)
 				if err != nil {
 					red.Printf("[ERROR]: %s", err)
 					os.Exit(1)
@@ -107,16 +108,17 @@ var fileCmd = &cobra.Command{
 
 				lines := strings.Split(string(fkey), "\n")
 
-				for _, pswd := range lines {
-					pbkdf2 = misc.KeyFromPassword([]byte(pswd), saltByte)
+				for _, ks := range lines {
+					pbkdf2 = []byte(ks)
 					text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
 					if text != nil && err == nil {
+						bs64key := base64.StdEncoding.EncodeToString(pbkdf2)
 						plaintext = append(plaintext, text)
-						passwords = append(passwords, pswd)
+						passwords = append(passwords, bs64key)
 						break
 					}
 				}
-			} else if strings.Contains(password, ".txt") {
+			} else if password != "" && strings.Contains(password, ".txt") {
 				fkey, err := os.ReadFile(password)
 				if err != nil {
 					red.Printf("[ERROR]: %s", err)
@@ -130,6 +132,7 @@ var fileCmd = &cobra.Command{
 					text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
 					if text != nil && err == nil {
 						plaintext = append(plaintext, text)
+						fmt.Println(plaintext)
 						passwords = append(passwords, pswd)
 						break
 					}
@@ -182,10 +185,10 @@ var fileCmd = &cobra.Command{
 					}
 
 					for _, ks := range lines {
-						pbkdf2 = misc.KeyFromPassword([]byte(ks), saltByte)
+						pbkdf2 = []byte(ks)
 						text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
-						bs64key := base64.StdEncoding.EncodeToString([]byte(ks))
 						if text != nil && err == nil {
+							bs64key := base64.StdEncoding.EncodeToString(pbkdf2)
 							plaintext = append(plaintext, text)
 							passwords = append(passwords, bs64key)
 							break

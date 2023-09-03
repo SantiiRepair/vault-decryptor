@@ -83,8 +83,9 @@ var jsonCmd = &cobra.Command{
 					os.Exit(1)
 				}
 
+				bs64key := base64.StdEncoding.EncodeToString(pbkdf2)
 				plaintext = append(plaintext, text)
-				passwords = append(passwords, password)
+				passwords = append(passwords, bs64key)
 			}
 			if password != "" && !strings.Contains(password, ".txt") {
 				pbkdf2 = misc.KeyFromPassword([]byte(password), saltByte)
@@ -97,8 +98,8 @@ var jsonCmd = &cobra.Command{
 				plaintext = append(plaintext, text)
 				passwords = append(passwords, password)
 			}
-			if strings.Contains(key, ".txt") {
-				fkey, err := os.ReadFile(password)
+			if key != "" && strings.Contains(key, ".txt") {
+				fkey, err := os.ReadFile(key)
 				if err != nil {
 					red.Printf("[ERROR]: %s", err)
 					os.Exit(1)
@@ -106,16 +107,17 @@ var jsonCmd = &cobra.Command{
 
 				lines := strings.Split(string(fkey), "\n")
 
-				for _, pswd := range lines {
-					pbkdf2 = misc.KeyFromPassword([]byte(pswd), saltByte)
+				for _, ks := range lines {
+					pbkdf2 = []byte(ks)
 					text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
 					if text != nil && err == nil {
+						bs64key := base64.StdEncoding.EncodeToString(pbkdf2)
 						plaintext = append(plaintext, text)
-						passwords = append(passwords, pswd)
+						passwords = append(passwords, bs64key)
 						break
 					}
 				}
-			} else if strings.Contains(password, ".txt") {
+			} else if password != "" && strings.Contains(password, ".txt") {
 				fkey, err := os.ReadFile(password)
 				if err != nil {
 					red.Printf("[ERROR]: %s", err)
@@ -186,11 +188,11 @@ var jsonCmd = &cobra.Command{
 					}
 
 					for _, ks := range lines {
-						pbkdf2 = misc.KeyFromPassword([]byte(ks), saltByte)
+						pbkdf2 = []byte(ks)
 						text, err := decryptor.WithKey(pbkdf2, dataByte, ivByte)
 						if text != nil && err == nil {
+							bs64key := base64.StdEncoding.EncodeToString(pbkdf2)
 							plaintext = append(plaintext, text)
-							bs64key := base64.StdEncoding.EncodeToString([]byte(ks))
 							passwords = append(passwords, bs64key)
 							break
 						}
