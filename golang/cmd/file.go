@@ -219,7 +219,7 @@ var fileCmd = &cobra.Command{
 				}
 
 				if len(plaintext) == 0 {
-					red.Println("[ERROR]: No vault json could be decrypted.")
+					red.Printf("[ERROR]: No vault %s file could be decrypted.", ext)
 					os.Exit(1)
 				}
 			}
