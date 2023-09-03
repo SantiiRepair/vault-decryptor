@@ -4,6 +4,7 @@ import (
 	color "github.com/fatih/color"
 	"github.com/tyler-smith/go-bip32"
 	"github.com/tyler-smith/go-bip39"
+	"github.com/ethereum/go-ethereum"
 	"os"
 )
 
