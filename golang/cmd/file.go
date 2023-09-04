@@ -255,7 +255,7 @@ var fileCmd = &cobra.Command{
 
 		writer := csv.NewWriter(csv_file)
 		if fileInfo.Size() == 0 {
-			crecord := []string{"Password", "Address", "Mnemonic", "PrivateKey", "Number Of Accounts"}
+			crecord := []string{"Password", "Address", "Mnemonic", "PrivateKey"}
 			wterr := writer.Write(crecord)
 			if wterr != nil {
 				red.Printf("[ERROR]: %s", wterr)
@@ -271,7 +271,7 @@ var fileCmd = &cobra.Command{
 				os.Exit(1)
 			}
 
-			record := []string{passwords[i], asoc[0], string(vault[0].Data.Mnemonic), asoc[1], string(vault[0].Data.NumberOfAccounts)}
+			record := []string{passwords[i], asoc[0], string(vault[0].Data.Mnemonic), asoc[1]}
 			wterr := writer.Write(record)
 			if wterr != nil {
 				red.Printf("[ERROR]: %s", wterr)

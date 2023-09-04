@@ -1,41 +1,37 @@
 package misc
 
 import (
-	color "github.com/fatih/color"
-	"github.com/tyler-smith/go-bip32"
-	"github.com/tyler-smith/go-bip39"
-	"github.com/ethereum/go-ethereum"
+	"crypto/ecdsa"
 	"os"
-)
 
-type PrivateKey struct {
-	Mnemonic string `json:"mnemonic"`
-	Key      string `json:"key"`
-}
+	"github.com/btcsuite/btcd/btcutil/hdkeychain"
+	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/crypto"
+	color "github.com/fatih/color"
+	bip39 "github.com/tyler-smith/go-bip39"
+)
 
 func FromMnemonic(mnemonic string, password string) ([]string, error) {
 	red := color.New(color.FgRed)
 	seed := bip39.NewSeed(mnemonic, password)
-	masterKey, err := bip32.NewMasterKey(seed)
+	masterKey, err := hdkeychain.NewMaster(seed, &chaincfg.MainNetParams)
 	if err != nil {
 		red.Sprintf("[ERROR]: %s", err)
 		os.Exit(1)
 	}
 
-	privateKey, err := masterKey.NewChildKey(0)
-	if err != nil {
-		red.Sprintf("[ERROR]: %s", err)
+	privateKey, err := masterKey.ECPrivKey()
+	privateKeyECDSA := privateKey.ToECDSA()
+	publicKey := privateKeyECDSA.Public()
+
+	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+	if !ok {
+		red.Println("[ERROR]: Could not convert the public key type.")
 		os.Exit(1)
 	}
 
-	derivedKey, err := privateKey.NewChildKey(0)
-	if err != nil {
-		red.Sprintf("[ERROR]: %s", err)
-		os.Exit(1)
-	}
-
-	a := account.Address.Hex()
-	p := derivedKey.String()
+	a, p := crypto.PubkeyToAddress(*publicKeyECDSA).String(), hexutil.Encode(crypto.FromECDSA(privateKeyECDSA))[2:]
 
 	return []string{a, p}, nil
 }
