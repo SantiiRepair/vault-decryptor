@@ -1,22 +1,13 @@
-/*
-Copyright © 2023 Santiago Ramirez
-*/
 package cmd
 
 import (
 	"os"
 
-	color "github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
-
 var rootCmd = &cobra.Command{
 	Use:   "vault-decryptor",
 	Short: "A fast, local Metamask Vault Decryptor in the command line.",
-	Run: func(cmd *cobra.Command, args []string) {
-		red := color.New(color.FgRed).PrintFunc()
-		red(sticker)
-	},
 }
 
 func Execute() {
@@ -27,7 +18,7 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.SetUsageTemplate("Usage: vault-decryptor [mode] [--r] [--pass] [--path]")
+	rootCmd.SetUsageTemplate("Usage: vault-decryptor [mode] [-r] [OPTIONS]")
 }
 
 type Payload struct {

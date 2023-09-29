@@ -1,6 +1,3 @@
-/*
-Copyright © 2023 Santiago Ramirez
-*/
 package cmd
 
 import (
@@ -44,15 +41,15 @@ var jsonCmd = &cobra.Command{
 		recursive := cmd.Flag("recursive").Value.String()
 
 		if recursive == "" {
-			red.Println("[ERROR]: Missing argument '--recursive' in list.")
+			red.Println("[ERROR]: Missing argument '-r / --recursive' in list.")
 			os.Exit(1)
 		}
 		if path == "" {
-			red.Println("[ERROR]: Missing argument '--path' in list.")
+			red.Println("[ERROR]: Missing argument '-p / --path' in list.")
 			os.Exit(1)
 		}
 		if output == "" {
-			red.Println("[ERROR]: Missing argument '--output' in list.")
+			red.Println("[ERROR]: Missing argument '-o / --output' in list.")
 			os.Exit(1)
 		}
 
